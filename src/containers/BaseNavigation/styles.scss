@@ -1,0 +1,21 @@
+@import "../../styles/variables";
+
+.base-nav {
+    display: flex;
+    justify-content: space-around;
+
+    &__item {
+        cursor: pointer;
+        font-family: $baseFontFamily;
+        padding: $gap;
+        font-size: 18px;
+        margin: 0;
+        background: none;
+        border: none;
+
+        &--active {
+            font-weight: bold;
+        }
+    }
+}
+

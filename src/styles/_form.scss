@@ -1,0 +1,78 @@
+@import 'variables';
+
+$controlHeight: 40px;
+$controlFontSize: 18px;
+$textFontSize: 16px;
+$darkenAmount: 4;
+
+.base-input {
+  width: 100%;
+  height: $controlHeight;
+  box-sizing: border-box;
+  padding: 0 $gap;
+  line-height: $controlHeight;
+  font-size: $controlFontSize;
+  border: 1px solid lightgray;
+  border-radius: $borderRadius;
+}
+
+.base-button {
+  font-family: $baseFontFamily;
+  height: $controlHeight;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  line-height: $controlHeight;
+  padding: 0 1.5*$gap;
+  font-size: $controlFontSize;
+  min-width: 90px;
+  cursor: pointer;
+  border-radius: $borderRadius;
+
+  &--success {
+    background-color: $colorSuccess;
+    border-color: $colorSuccess;
+    color: $colorWhite;
+
+    &:hover {
+      background-color: darken($colorSuccess, $darkenAmount);
+      border-color: darken($colorSuccess, $darkenAmount);
+    }
+  }
+
+  &--danger {
+    background-color: $colorDanger;
+    border-color: $colorDanger;
+    color: $colorWhite;
+
+    &:hover {
+      background-color: darken($colorDanger, $darkenAmount);
+      border-color: darken($colorDanger, $darkenAmount);
+    }
+  }
+
+  &--light {
+    background-color: $colorLight;
+    border-color: $colorLight;
+    color: $colorBlack;
+
+    &:hover {
+      background-color: darken($colorLight, $darkenAmount);
+      border-color: darken($colorLight, $darkenAmount);
+    }
+  }
+}
+
+.base-label {
+  line-height: 1;
+  font-family: $baseFontFamily;
+  margin: 0;
+  padding: 0 0 $gap 0;
+  display: block;
+  font-size: $controlFontSize;
+}
+
+.base-text {
+  line-height: 1.2;
+  font-family: $baseFontFamily;
+  font-size: $textFontSize;
+}

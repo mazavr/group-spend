@@ -1,0 +1,14 @@
+@import '../../styles/variables';
+
+.list-item {
+  &__title {
+    font-family: $baseFontFamily;
+    font-size: 18px;
+    line-height: 40px;
+    cursor: pointer;
+  }
+
+  &__actions {
+
+  }
+}

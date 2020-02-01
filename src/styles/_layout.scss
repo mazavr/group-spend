@@ -1,0 +1,67 @@
+@import 'variables';
+@import 'mixins/clearfix';
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.page-container {
+  max-width: $pageWidthMax;
+  margin: 0 auto;
+  padding: $gap;
+}
+
+.v-list {
+  &__item {
+    padding-top: $gap;
+
+    &--4xgap {
+      padding-top: $gap*4;
+    }
+
+    &:first-child {
+      padding-top: 0;
+    }
+  }
+}
+
+.h-list {
+  &__item {
+    display: inline-block;
+    padding-left: $gap;
+
+    &:first-child {
+      padding-left: 0;
+    }
+  }
+
+  &--pull-right {
+    text-align: right;
+  }
+}
+
+.trailing-block {
+  display: flex;
+
+  &__body {
+    flex-grow: 1;
+
+  }
+
+  &__tail {
+    padding-left: $gap;
+  }
+}
+
+.panel {
+  background-color: $colorLight;
+  border-radius: $borderRadius;
+  border: 1px solid darken($colorLight, 10);
+  padding: $gap*1.5;
+
+  &--info {
+    background-color: $colorInfo;
+    border-color: darken($colorInfo, 10);;
+  }
+}

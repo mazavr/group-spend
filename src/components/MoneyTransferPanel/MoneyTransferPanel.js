@@ -1,0 +1,39 @@
+import React from 'react';
+import MoneyTransferList from "../MoneyTransferList/MoneyTransferList";
+
+function MoneyTransferPanel({transfers, closed, open, close}) {
+
+  return (
+    <div className={'panel panel--info'}>
+      <div className={'v-list'}>
+        <div className={'v-list__item'}>
+          {closed ? (
+            <h5>Was closed with next transfers:</h5>
+          ) : (
+            <h5>To close session you need that transfers:</h5>
+          )}
+        </div>
+        <div className={'v-list__item'}>
+          <MoneyTransferList transfers={transfers}/>
+        </div>
+        <div className={'v-list__item  v-list__item--4xgap'}>
+          <div className={'h-list h-list--pull-right'}>
+            <div className={'h-list__item'}>
+              {closed ? (
+                <button type={'button'}
+                        className={'base-button base-button--light'}
+                        onClick={open}>Open</button>
+              ) : (
+                <button type={'button'}
+                        className={'base-button base-button--success'}
+                        onClick={close}>Close</button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default MoneyTransferPanel;

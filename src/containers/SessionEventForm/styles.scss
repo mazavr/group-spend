@@ -1,0 +1,12 @@
+@import '../../styles/variables';
+
+.base-input{
+  &--money-input {
+    width: 110px;
+  }
+}
+
+.money-separator-text {
+  font-family: $baseFontFamily;
+  font-size: 20px;
+}
