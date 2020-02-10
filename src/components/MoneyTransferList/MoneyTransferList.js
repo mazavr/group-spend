@@ -2,7 +2,7 @@ import React from 'react';
 
 function MoneyTransferList({transfers}) {
   if (!transfers || transfers.length === 0) {
-    return null;
+    return <div className={'base-text'}>No transfers</div>;
   }
 
   return (

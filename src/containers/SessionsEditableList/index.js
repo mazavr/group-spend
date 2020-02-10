@@ -1,1 +1,1 @@
-export { default } from './SessionsEditableList'
+export {default} from './SessionsEditableList'

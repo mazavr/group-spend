@@ -1,1 +1,1 @@
-export {default} from './MoneyTransferList'
+export {default} from './MoneyTransferList';

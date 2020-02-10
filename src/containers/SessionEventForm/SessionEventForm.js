@@ -1,124 +1,148 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {globalContext} from '../../store/globalReducer';
-import {actionTypes} from '../../store/globalActions';
+import {setSelectedSessionEventId, updateSessionEvent} from '../../store/globalActions';
 import {clone} from '../../utils/object';
-import SessionsService from '../../services/SessionsService';
 import './styles.scss'
-import id from "../../utils/id";
-import EventPayment from "../../components/EventPayment";
-import MoneyTransferPanel from "../../components/MoneyTransferPanel";
-import {getRequiredTransfers} from "../../utils/payment";
+import id from '../../utils/id';
+import EventPayment from '../../components/EventPayment';
+import {recalculatePaymentsTotalAmount} from '../../utils/payment';
+import BlockError from '../../components/BlockError';
+import Payment from '../../models/Payment';
+import {validate} from '../../validation/validator';
+import SessionEventMoneyTransferPanel from '../SessionEventMoneyTransferPanel';
 
 function SessionEventForm() {
-  const [{selectedSession, selectedSessionEvent, users}, dispatch] = useContext(globalContext);
-  const [editingEvent, setEditingEvent] = useState(clone(selectedSessionEvent));
+  const [{selectedSessionId, selectedSessionEventId, users, sessions}, dispatch] = useContext(globalContext);
+  const originalSessionEvent = useMemo(() => {
+    return sessions.find(session => session.id === selectedSessionId).events.find(event => event.id === selectedSessionEventId);
+  }, [sessions, selectedSessionId, selectedSessionEventId]);
+  const [editingEvent, setEditingEvent] = useState(clone(originalSessionEvent));
+  const [errors, setErrors] = useState({});
+
+  const requiredAmount = editingEvent.amount - editingEvent.payments.reduce((p, c) => {
+    return p + c.amount;
+  }, 0);
+
+  const requiredTotalAmount = editingEvent.amount - editingEvent.payments.reduce((p, c) => {
+    return p + c.totalAmount;
+  }, 0);
+
+  const validationRules = {
+    title: {
+      required: {
+        message: 'Field is required',
+        validate: title => !!title
+      },
+      unique: {
+        message: 'Already exists',
+        validate: title => originalSessionEvent.title === title || !sessions.find(session => session.title === title)
+      }
+    },
+    amount: {
+      notNegative: {
+        message: 'Should be not negative',
+        validate: value => value >= 0
+      }
+    },
+    form: {
+      requiredAmount: {
+        message: 'requiredAmount',
+        validate: () => requiredAmount === 0
+      },
+      requiredTotalAmount: {
+        message: 'requiredTotalAmount',
+        validate: () => requiredTotalAmount === 0
+      }
+    }
+  };
+
+  const checkErrors = (propsArray, modelRules, model) => {
+    let validationResult = validate(propsArray, modelRules, model);
+    setErrors(validationResult || {});
+    return validationResult === undefined;
+  };
 
   const cancel = () => {
-    dispatch({type: actionTypes.SET_SELECTED_SESSION_EVENT, event: null})
+    dispatch(setSelectedSessionEventId(null))
   };
 
   const update = () => {
-    SessionsService.updateEvent(selectedSession.id, {...selectedSessionEvent, ...editingEvent}).then(() => {
-      SessionsService.querySessions().then(sessions => {
-        dispatch({type: actionTypes.SET_SESSIONS, sessions});
-        dispatch({type: actionTypes.SET_SELECTED_SESSION_EVENT, event: null})
-      })
-    })
+    if (checkErrors(['title', 'amount', 'form'], validationRules, editingEvent)) {
+      dispatch(updateSessionEvent(selectedSessionId, editingEvent));
+      dispatch(setSelectedSessionEventId(null));
+    }
+  };
+
+  const setEditingEventWithCalculation = event => {
+    setEditingEvent(recalculatePaymentsTotalAmount(event));
   };
 
   const addPayment = userId => {
-    setEditingEvent({
-      ...editingEvent, payments: [...editingEvent.payments, {
+    setEditingEventWithCalculation({
+      ...editingEvent,
+      payments: [...editingEvent.payments, new Payment({
         id: id(),
-        userId,
-        amount: 0,
-        totalAmount: 0
-      }]
+        userId
+      })]
     })
   };
 
   const onPaymentEdit = payment => {
-    let existingPayment = editingEvent.payments.find(p => p.id === payment.id);
-    if (existingPayment) {
-      Object.assign(existingPayment, payment);
-      setEditingEvent({...editingEvent})
-    }
+    setEditingEventWithCalculation({
+      ...editingEvent,
+      payments: editingEvent.payments.map(eventPayment => {
+        return eventPayment.id === payment.id
+          ? {...eventPayment, ...payment}
+          : eventPayment;
+      })
+    });
   };
 
   const onFieldEdit = event => {
-    setEditingEvent(event)
+    setEditingEventWithCalculation(event);
+    checkErrors(['title', 'amount'], validationRules, event);
   };
 
-  const onPaymentDelete = paymentToDelete => {
-    setEditingEvent({
+  const onPaymentDelete = payment => {
+    setEditingEventWithCalculation({
       ...editingEvent,
-      payments: editingEvent.payments.filter(payment => payment.id !== paymentToDelete.id)
+      payments: editingEvent.payments.filter(eventPayment => eventPayment.id !== payment.id)
     })
-  };
-
-  const formIsValid = () => {
-    let {totalBalance, totalAmount} = editingEvent.payments.reduce((p, c) => {
-      p.totalBalance += c.amount - c.totalAmount;
-      p.totalAmount += c.totalAmount;
-      return p;
-    }, {totalBalance: 0, totalAmount: 0});
-
-    return totalBalance === 0 && totalAmount === editingEvent.amount;
-  };
-
-  const getTransfersForPanel = () => {
-    if (!formIsValid()) {
-      return [];
-    }
-
-    let preparedPayments = editingEvent.payments.map(p => ({
-      key: users.find(u => u.id === p.userId),
-      balance: p.amount - p.totalAmount
-    }));
-
-    return getRequiredTransfers(preparedPayments)
   };
 
   const onOpen = () => {
-    SessionsService.updateEvent(selectedSession.id, {
-      ...selectedSessionEvent, ...editingEvent,
-      closed: false
-    }).then(event => {
-      setEditingEvent(event);
-      dispatch({type: actionTypes.SET_SELECTED_SESSION_EVENT, event})
-    })
+    setEditingEvent({...editingEvent, closed: false});
+    dispatch(updateSessionEvent(selectedSessionId, {...editingEvent, closed: false}));
   };
 
   const onClose = () => {
-    SessionsService.updateEvent(selectedSession.id, {
-      ...selectedSessionEvent, ...editingEvent,
-      closed: true
-    }).then(event => {
-      setEditingEvent(event);
-      dispatch({type: actionTypes.SET_SELECTED_SESSION_EVENT, event})
-    })
+    setEditingEvent({...editingEvent, closed: true});
+    dispatch(updateSessionEvent(selectedSessionId, {...editingEvent, closed: true}));
   };
 
   return (
     <div className={'v-list'}>
       <div className={'v-list__item'}>
-        <h4>
+        <h5>
           Edit session event
-        </h4>
+        </h5>
       </div>
       <div className={'v-list__item'}>
         <div className={'trailing-block'}>
           <div className={'trailing-block__body'}>
-            <input className={'base-input'}
+            <input className={`base-input ${errors.title ? 'base-input--invalid' : ''}`}
                    value={editingEvent.title}
                    onChange={event => onFieldEdit({...editingEvent, title: event.target.value})}/>
+            <BlockError errors={errors.title}/>
           </div>
           <div className={'trailing-block__tail'}>
             <input type={'number'}
-                   className={'base-input base-input--money-input'}
+                   min={0}
+                   className={`base-input base-input--money-input ${errors.amount ? 'base-input--invalid' : ''}`}
                    readOnly={editingEvent.closed}
                    value={editingEvent.amount}
                    onChange={event => onFieldEdit({...editingEvent, amount: +event.target.value})}/>
+            <BlockError errors={errors.amount}/>
           </div>
         </div>
       </div>
@@ -140,9 +164,19 @@ function SessionEventForm() {
           )}
         </div>
       </div>
+      {requiredAmount !== 0 && <div className={'v-list__item'}>
+        <div className={`panel ${errors.form && errors.form.requiredAmount ? 'panel--danger' : 'panel--info'}`}>
+          <div className={'panel__text'}>Pay <b>{requiredAmount}</b> to complete</div>
+        </div>
+      </div>}
+      {requiredTotalAmount !== 0 && <div className={'v-list__item'}>
+        <div className={`panel ${errors.form && errors.form.requiredTotalAmount ? 'panel--danger' : 'panel--info'}`}>
+          <div className={'panel__text'}>Split <b>{requiredTotalAmount}</b> of total amount to complete</div>
+        </div>
+      </div>}
       {editingEvent.closed || <div className={'v-list__item v-list__item--4xgap'}>
         <label className={'base-label'}>Choose friend to add payment:</label>
-        <select className={'base-input'} onChange={event => addPayment(+event.target.value)} value={''}>
+        <select className={'base-input'} onChange={event => addPayment(event.target.value)} value={''}>
           <option value=""></option>
           {users.map(user =>
             <option key={user.id} value={user.id}>{user.name}</option>
@@ -159,11 +193,10 @@ function SessionEventForm() {
           </div>
         </div>
       </div>
-      {formIsValid() && <div className={'v-list__item  v-list__item--4xgap'}>
-        <MoneyTransferPanel transfers={getTransfersForPanel()}
-                            closed={editingEvent.closed}
-                            close={onClose}
-                            open={onOpen}/>
+      {requiredAmount === 0 && requiredTotalAmount === 0 && <div className={'v-list__item  v-list__item--4xgap'}>
+        <SessionEventMoneyTransferPanel onOpenSession={onOpen}
+                                        onCloseSession={onClose}
+                                        event={editingEvent}/>
       </div>}
     </div>
   )

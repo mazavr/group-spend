@@ -1,62 +1,57 @@
-import React, {useContext,  useState} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {globalContext} from '../../store/globalReducer';
-import {actionTypes} from '../../store/globalActions';
-import SessionsService from '../../services/SessionsService';
+import {
+  closeSession as closeSessionAction,
+  setSelectedSessionId,
+  updateSession as updateSessionAction
+} from '../../store/globalActions';
 import EventList from '../EventList/EventList';
+import SessionTitleForm from '../SessionTitleForm';
+import SessionMoneyTransferPanel from '../SessionMoneyTransferPanel';
 
 function SessionForm() {
-  const [{selectedSession}, dispatch] = useContext(globalContext);
-  const [sessionTitle, setSessionTitle] = useState(selectedSession.title);
+  const [{selectedSessionId, sessions}, dispatch] = useContext(globalContext);
+  const originalSession = useMemo(() => {
+    return sessions.find(session => session.id === selectedSessionId);
+  }, [sessions, selectedSessionId]);
 
-  const cancel = () => {
-    dispatch({type: actionTypes.SET_SELECTED_SESSION, session: null})
+  const cancelEdit = () => {
+    dispatch(setSelectedSessionId(null))
   };
 
-  const saveSessionTitle = () => {
-    SessionsService.updateSession(selectedSession.id, {...selectedSession, title: sessionTitle}).then(() => {
-      SessionsService.querySessions().then(sessions => {
-        dispatch({type: actionTypes.SET_SESSIONS, sessions});
-        dispatch({type: actionTypes.SET_SELECTED_SESSION, session: null})
-      })
-    })
+  const closeSession = () => {
+    dispatch(closeSessionAction(selectedSessionId));
   };
 
-  const onSessionTitleChange = title => {
-    setSessionTitle(title)
+  const openSession = () => {
+    dispatch(updateSessionAction({...originalSession, closed: false}));
+  };
+
+  const saveTitle = title => {
+    dispatch(updateSessionAction({...originalSession, title}));
+    dispatch(setSelectedSessionId(null));
   };
 
   return (
     <div className={'v-list'}>
       <div className={'v-list__item'}>
-        <h4>
-          Edit session
-        </h4>
+        <h5>Edit session</h5>
       </div>
       <div className={'v-list__item'}>
-        <input className={'base-input'} value={sessionTitle}
-               onChange={event => onSessionTitleChange(event.target.value)}/>
-      </div>
-      <div className={'v-list__item'}>
-        <div className={'h-list h-list--pull-right'}>
-          <div className={'h-list__item'}>
-            <button type={'button'} className={'base-button base-button--success'} onClick={saveSessionTitle}>
-              Save name
-            </button>
-          </div>
-        </div>
+        <SessionTitleForm session={originalSession}
+                          onSave={saveTitle}
+                          onCancel={cancelEdit}/>
       </div>
       <div className={'v-list__item v-list__item--4xgap'}>
-        <EventList session={selectedSession}/>
+        <EventList session={originalSession}/>
       </div>
       <div className={'v-list__item  v-list__item--4xgap'}>
-        <div className={'h-list h-list--pull-right'}>
-          <div className={'h-list__item'}>
-            <button type={'button'} className={'base-button base-button--light'} onClick={cancel}>Back</button>
-          </div>
-        </div>
+        <SessionMoneyTransferPanel session={originalSession}
+                                   onCloseSession={closeSession}
+                                   onOpenSession={openSession}/>
       </div>
     </div>
   )
 }
 
-export default SessionForm
+export default SessionForm;

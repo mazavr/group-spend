@@ -1,40 +1,31 @@
-import React, {useContext, useEffect, useState} from 'react';
-import EditableList from "../../components/EditableList/EditableList";
-import {globalContext} from "../../store/globalReducer";
-import SessionsService from "../../services/SessionsService";
-import {actionTypes} from "../../store/globalActions";
+import React, {useContext, useMemo} from 'react';
+import {globalContext} from '../../store/globalReducer';
+import {createSessionEvent, deleteSessionEvent, setSelectedSessionEventId} from '../../store/globalActions';
+import EditableList from '../../components/EditableList/EditableList';
+import SessionEvent from '../../models/SessionEvent';
+import ListItem from '../../models/ListItem';
+import id from '../../utils/id';
 
 function EventList({session}) {
   const [, dispatch] = useContext(globalContext);
-  const [listItems, setListItems] = useState([])
 
-  useEffect(() => {
-    setListItems(session.events.map(e => ({
-      id: e.id,
-      title: e.title + (e.closed ? ' (closed)' : '')
-    })))
-  }, [session.events]);
+  const listItems = useMemo(() => {
+    return session.events.map(event => new ListItem({
+      id: event.id,
+      title: `${event.title} ${event.closed ? ' (closed)' : ''}`
+    }))
+  }, [session]);
 
   const deleteClick = ({id}) => {
-    SessionsService.deleteEvent(session.id, id).then(() => {
-      SessionsService.querySessions().then(sessions => {
-        dispatch({type: actionTypes.SET_SESSIONS, sessions});
-        dispatch({type: actionTypes.SET_SELECTED_SESSION, session: sessions.find(s => s.id === session.id)})
-      })
-    })
+    dispatch(deleteSessionEvent(session.id, id));
   };
+
   const titleClick = ({id}) => {
-    let event = session.events.find(e => e.id === id);
-    dispatch({type: actionTypes.SET_SELECTED_SESSION_EVENT, event});
+    dispatch(setSelectedSessionEventId(id));
   };
 
   const addEventClick = title => {
-    SessionsService.createEvent(session.id, {title, payments: [], closed: false, amount: 0}).then(() => {
-      SessionsService.querySessions().then(sessions => {
-        dispatch({type: actionTypes.SET_SESSIONS, sessions});
-        dispatch({type: actionTypes.SET_SELECTED_SESSION, session: sessions.find(s => s.id === session.id)})
-      })
-    })
+    dispatch(createSessionEvent(session.id, new SessionEvent({title, id: id()})));
   };
 
   return (

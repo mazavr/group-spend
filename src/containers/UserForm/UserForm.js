@@ -1,56 +1,49 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {globalContext} from '../../store/globalReducer';
-import {actionTypes} from '../../store/globalActions';
-import {clone} from '../../utils/object';
-import UsersService from '../../services/UsersService';
+import {setSelectedUserId, updateUser as updateUserAction} from '../../store/globalActions';
+import TitleForm from '../../components/TitleForm';
 
 function UserForm() {
-  const [{selectedUser: user}, dispatch] = useContext(globalContext);
-  const [userCopy, setUserCopy] = useState(clone(user));
+  const [{selectedUserId, users}, dispatch] = useContext(globalContext);
+  const originalUser = useMemo(() => {
+    return users.find(user => user.id === selectedUserId);
+  }, [users, selectedUserId]);
+
+  const validationRules = {
+    title: {
+      required: {
+        message: 'User name is required',
+        validate: name => !!name
+      },
+      unique: {
+        message: 'User with the same name already exists',
+        validate: name => originalUser.name === name || !users.find(u => u.name === name)
+      }
+    }
+  };
 
   const cancel = () => {
-    dispatch({type: actionTypes.SET_SELECTED_USER, user: null})
+    dispatch(setSelectedUserId(null));
   };
 
-  const saveUser = () => {
-    UsersService.updateUser(userCopy.id, userCopy).then(() => {
-      UsersService.queryUsers().then(users => {
-        dispatch({type: actionTypes.SET_USERS, users});
-        dispatch({type: actionTypes.SET_SELECTED_USER, user: null})
-      })
-    })
-  };
-
-  const onUserNameChange = name => {
-    setUserCopy({...userCopy, name})
+  const updateUser = name => {
+    dispatch(updateUserAction({...originalUser, name}));
+    dispatch(setSelectedUserId(null));
   };
 
   return (
-    <form className={'v-list'} onSubmit={e => {
-      saveUser();
-      e.preventDefault()
-    }}>
+    <div className={'v-list'}>
       <div className={'v-list__item'}>
-        <h4>
-          Edit friend
-        </h4>
+        <h5>Edit friend</h5>
       </div>
       <div className={'v-list__item'}>
-        <input className={'base-input'} value={userCopy.name}
-               onChange={event => onUserNameChange(event.target.value)}/>
+        <TitleForm title={originalUser.name}
+                   validationRules={validationRules}
+                   onCancel={cancel}
+                   onSubmit={updateUser}/>
       </div>
-      <div className={'v-list__item'}>
-        <div className={'h-list h-list--pull-right'}>
-          <div className={'h-list__item'}>
-            <button type={'button'} className={'base-button base-button--light'} onClick={cancel}>Cancel</button>
-          </div>
-          <div className={'h-list__item'}>
-            <button type={'submit'} className={'base-button base-button--success'}>Save</button>
-          </div>
-        </div>
-      </div>
-    </form>
+    </div>
   )
 }
 
-export default UserForm
+export default UserForm;

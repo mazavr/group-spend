@@ -1,8 +1,7 @@
-import React from "react";
+import React from 'react';
 import './styles.scss'
 
 function SimpleList({items, deleteClick, titleClick}) {
-  console.log('SimpleList render')
   return (
     <div className={'v-list'}>
       {items.map(item =>

@@ -55,13 +55,33 @@ body {
 }
 
 .panel {
+  $g: &;
+
   background-color: $colorLight;
   border-radius: $borderRadius;
   border: 1px solid darken($colorLight, 10);
-  padding: $gap*1.5;
+  padding: $gap;
+  font-size: $textFontSize;
+
+  &__text {
+    font-family: $baseFontFamily;
+  }
 
   &--info {
-    background-color: $colorInfo;
-    border-color: darken($colorInfo, 10);;
+    background-color: lighten($colorInfo, 73);
+    border-color: lighten($colorInfo, 40);
+
+    #{$g}__text {
+      color: $colorInfo;
+    }
+  }
+
+  &--danger {
+    background-color: lighten($colorDanger, 43);
+    border-color: lighten($colorDanger, 30);
+
+    #{$g}__text {
+      color: $colorDanger;
+    }
   }
 }

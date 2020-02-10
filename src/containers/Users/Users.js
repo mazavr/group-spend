@@ -4,9 +4,9 @@ import UserForm from '../UserForm';
 import UsersEditableList from '../UsersEditableList';
 
 function Users() {
-  const [{selectedUser}] = useContext(globalContext);
+  const [{selectedUserId}] = useContext(globalContext);
 
-  return selectedUser
+  return selectedUserId
     ? <UserForm/>
     : <UsersEditableList/>
 }

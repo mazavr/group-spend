@@ -1,33 +1,38 @@
 import React, {useContext} from 'react';
-
 import './styles.scss'
-import {globalContext} from "../../store/globalReducer";
-import {actionTypes} from "../../store/globalActions";
-import viewNames from "../../constants/viewNames";
+import {globalContext} from '../../store/globalReducer';
+import {
+  setSelectedSessionEventId,
+  setSelectedSessionId,
+  setSelectedUserId, setView
+} from '../../store/globalActions';
+import viewNames from '../../constants/viewNames';
 
 const nav = [{id: viewNames.SESSIONS, title: 'Sessions'}, {id: viewNames.USERS, title: 'Friends'}];
 
 function BaseNavigation() {
-  const [{view}, dispatch] = useContext(globalContext);
+  const [{view, selectedSessionEventId}, dispatch] = useContext(globalContext);
 
   const navClick = newView => {
     if (newView === view) {
-      if (view === viewNames.SESSIONS) {
-        dispatch({type: actionTypes.SET_SELECTED_SESSION, session: null});
+      if (view === viewNames.SESSIONS && selectedSessionEventId) {
+        dispatch(setSelectedSessionEventId(null));
+      } else if (view === viewNames.SESSIONS) {
+        dispatch(setSelectedSessionId(null));
       } else if (view === viewNames.USERS) {
-        dispatch({type: actionTypes.SET_SELECTED_USER, user: null});
+        dispatch(setSelectedUserId(null));
       }
     }
 
-    dispatch({type: actionTypes.SET_VIEW, view: newView});
+    dispatch(setView(newView));
   };
 
   return (
     <div className={'base-nav'}>
       {nav.map(item =>
         <button type={'button'} key={item.id}
-             className={`base-nav__item ${view === item.id ? 'base-nav__item--active' : ''}`}
-             onClick={() => navClick(item.id)}>
+                className={`base-nav__item ${view === item.id ? 'base-nav__item--active' : ''}`}
+                onClick={() => navClick(item.id)}>
           {item.title}
         </button>
       )}
@@ -35,4 +40,4 @@ function BaseNavigation() {
   )
 }
 
-export default BaseNavigation
+export default BaseNavigation;

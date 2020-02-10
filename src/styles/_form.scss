@@ -1,8 +1,5 @@
 @import 'variables';
 
-$controlHeight: 40px;
-$controlFontSize: 18px;
-$textFontSize: 16px;
 $darkenAmount: 4;
 
 .base-input {
@@ -14,6 +11,15 @@ $darkenAmount: 4;
   font-size: $controlFontSize;
   border: 1px solid lightgray;
   border-radius: $borderRadius;
+
+  &--invalid {
+    border-color: $colorDanger;
+    background-color: lighten($colorDanger, 44);
+  }
+
+  &[disabled], &[readonly] {
+    background-color: lighten(lightgray, 15);
+  }
 }
 
 .base-button {
@@ -24,7 +30,7 @@ $darkenAmount: 4;
   line-height: $controlHeight;
   padding: 0 1.5*$gap;
   font-size: $controlFontSize;
-  min-width: 90px;
+  min-width: 70px;
   cursor: pointer;
   border-radius: $borderRadius;
 
@@ -52,27 +58,49 @@ $darkenAmount: 4;
 
   &--light {
     background-color: $colorLight;
-    border-color: $colorLight;
+    border-color: darken($colorLight, 8);
     color: $colorBlack;
 
     &:hover {
       background-color: darken($colorLight, $darkenAmount);
-      border-color: darken($colorLight, $darkenAmount);
+      border-color: darken($colorLight, 10);
     }
   }
 }
 
 .base-label {
+  $g: &;
+
   line-height: 1;
   font-family: $baseFontFamily;
   margin: 0;
   padding: 0 0 $gap 0;
   display: block;
   font-size: $controlFontSize;
+
+  &--inline {
+    padding: 0;
+    line-height: $controlHeight;
+
+    input {
+      vertical-align: middle;
+    }
+
+    #{$g}__text {
+      vertical-align: middle;
+    }
+  }
 }
 
 .base-text {
   line-height: 1.2;
   font-family: $baseFontFamily;
   font-size: $textFontSize;
+}
+
+.base-error {
+  line-height: 1.2;
+  font-family: $baseFontFamily;
+  font-size: $textFontSize;
+  color: $colorDanger;
 }

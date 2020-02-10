@@ -1,12 +1,25 @@
-import React, {useReducer} from 'react';
-import BaseNavigation from "../containers/BaseNavigation";
-import {globalReducer, globalState, init, globalContext} from "../store/globalReducer";
-import Sessions from "../containers/Sessions";
-import Users from "../containers/Users";
-import viewNames from "../constants/viewNames";
+import React, {useEffect, useReducer} from 'react';
+import BaseNavigation from '../containers/BaseNavigation';
+import {globalReducer, init, globalContext} from '../store/globalReducer';
+import Sessions from '../containers/Sessions';
+import Users from '../containers/Users';
+import viewNames from '../constants/viewNames';
+import UsersService from '../services/UsersService';
+import SessionsService from '../services/SessionsService';
 
 function App() {
-  const [store, dispatch] = useReducer(globalReducer, globalState, init);
+  const [store, dispatch] = useReducer(globalReducer, {
+    users: UsersService.getPersistedUsers(),
+    sessions: SessionsService.getPersistedSessions()
+  }, init);
+
+  useEffect(() => {
+    UsersService.persistUsers(store.users)
+  }, [store.users]);
+
+  useEffect(() => {
+    SessionsService.persistSessions(store.sessions)
+  }, [store.sessions]);
 
   return (
     <globalContext.Provider value={[store, dispatch]}>

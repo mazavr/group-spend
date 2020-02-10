@@ -2,11 +2,11 @@
 
 .base-input{
   &--money-input {
-    width: 110px;
+    width: 80px;
   }
 }
 
 .money-separator-text {
   font-family: $baseFontFamily;
-  font-size: 20px;
+  font-size: $controlFontSize;
 }

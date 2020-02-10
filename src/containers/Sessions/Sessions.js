@@ -5,11 +5,11 @@ import SessionsEditableList from '../SessionsEditableList';
 import SessionEventForm from '../SessionEventForm';
 
 function Sessions() {
-  const [{selectedSession, selectedSessionEvent}] = useContext(globalContext);
+  const [{selectedSessionId, selectedSessionEventId}] = useContext(globalContext);
 
-  if (selectedSessionEvent) {
+  if (selectedSessionEventId) {
     return <SessionEventForm/>
-  } else if (selectedSession) {
+  } else if (selectedSessionId) {
     return <SessionForm/>
   }
 

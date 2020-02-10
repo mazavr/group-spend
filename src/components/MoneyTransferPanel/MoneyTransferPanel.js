@@ -1,8 +1,7 @@
 import React from 'react';
-import MoneyTransferList from "../MoneyTransferList/MoneyTransferList";
+import MoneyTransferList from '../MoneyTransferList';
 
-function MoneyTransferPanel({transfers, closed, open, close}) {
-
+function MoneyTransferPanel({transfers, closed, open, close, title}) {
   return (
     <div className={'panel panel--info'}>
       <div className={'v-list'}>
@@ -10,7 +9,7 @@ function MoneyTransferPanel({transfers, closed, open, close}) {
           {closed ? (
             <h5>Was closed with next transfers:</h5>
           ) : (
-            <h5>To close session you need that transfers:</h5>
+            <h5>{title || 'Required transfers to close:'}</h5>
           )}
         </div>
         <div className={'v-list__item'}>
