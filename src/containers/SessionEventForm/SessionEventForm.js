@@ -19,13 +19,13 @@ function SessionEventForm() {
   const [editingEvent, setEditingEvent] = useState(clone(originalSessionEvent));
   const [errors, setErrors] = useState({});
 
-  const requiredAmount = editingEvent.amount - editingEvent.payments.reduce((p, c) => {
-    return p + c.amount;
-  }, 0);
+  const getRequiredAmount = () => editingEvent.amount - editingEvent.payments.reduce((p, c) => p + c.amount, 0);
 
-  const requiredTotalAmount = editingEvent.amount - editingEvent.payments.reduce((p, c) => {
-    return p + c.totalAmount;
-  }, 0);
+  const getRequiredTotalAmount = () => editingEvent.amount - editingEvent.payments.reduce((p, c) => p + c.totalAmount, 0);
+
+  const [requiredAmount, requiredTotalAmount] = useMemo(() => {
+    return [getRequiredAmount(), getRequiredTotalAmount()]
+  }, [editingEvent.amount, editingEvent.payments]);
 
   const validationRules = {
     title: {
@@ -47,11 +47,11 @@ function SessionEventForm() {
     form: {
       requiredAmount: {
         message: 'requiredAmount',
-        validate: () => requiredAmount === 0
+        validate: () => getRequiredAmount() === 0
       },
       requiredTotalAmount: {
         message: 'requiredTotalAmount',
-        validate: () => requiredTotalAmount === 0
+        validate: () => getRequiredTotalAmount() === 0
       }
     }
   };
@@ -202,4 +202,4 @@ function SessionEventForm() {
   )
 }
 
-export default SessionEventForm
+export default SessionEventForm;
