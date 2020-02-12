@@ -6,6 +6,10 @@ body {
   margin: 0;
 }
 
+body {
+  overscroll-behavior-y: contain; // disable pull to refresh in PWA
+}
+
 .page-container {
   max-width: $pageWidthMax;
   margin: 0 auto;
