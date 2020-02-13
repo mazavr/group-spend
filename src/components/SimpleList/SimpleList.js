@@ -27,4 +27,4 @@ function SimpleList({items, deleteClick, titleClick}) {
   )
 }
 
-export default React.memo(SimpleList)
+export default React.memo(SimpleList);

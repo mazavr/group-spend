@@ -65,6 +65,7 @@ function EventPayment({payment, users, deleteClick, edit, readOnly}) {
                      readOnly={readOnly}
                      className={'base-input base-input--money-input'}
                      value={payment.amount}
+                     onFocus={e => e.target.select()}
                      onChange={event => edit({...payment, amount: +event.target.value})}/>
             </div>
             <div className={'h-list__item'}>
@@ -76,6 +77,7 @@ function EventPayment({payment, users, deleteClick, edit, readOnly}) {
                      readOnly={readOnly || !payment.isCustomTotal}
                      className={`base-input base-input--money-input ${errors && errors.totalAmount ? 'base-input--invalid' : ''}`}
                      value={payment.totalAmount}
+                     onFocus={e => e.target.select()}
                      onChange={event => edit({...payment, totalAmount: +event.target.value})}/>
             </div>
           </div>

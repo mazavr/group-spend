@@ -3,15 +3,16 @@ import SimpleList from '../SimpleList';
 import {validate} from '../../validation/validator';
 import BlockError from '../BlockError';
 
-function EditableList({items, deleteClick, titleClick, addClick, addPlaceholder, validationRules}) {
+function EditableList({items, deleteClick, deleteFail, titleClick, addClick, addPlaceholder, validationRules}) {
   const [filter, setFilter] = useState('');
   const [filtered, setFiltered] = useState([]);
   const [title, setTitle] = useState('');
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
+    const filterLowerCase = filter.toLowerCase();
     setFiltered(filter
-      ? items.filter(item => item.title.includes(filter))
+      ? items.filter(item => item.title.toLowerCase().includes(filterLowerCase))
       : items);
   }, [filter, items]);
 
@@ -26,6 +27,7 @@ function EditableList({items, deleteClick, titleClick, addClick, addPlaceholder,
   const onSubmit = event => {
     event.preventDefault();
     if (validateForm({title}, ['title'])) {
+      setTitle('');
       addClick(title)
     }
   };
@@ -36,10 +38,10 @@ function EditableList({items, deleteClick, titleClick, addClick, addPlaceholder,
   };
 
   const onDeleteClick = item => {
-    if (validateForm(item, ['onDelete'])) {
-      deleteClick(item)
+    if (!validationRules.onDelete || validateForm(item, ['onDelete'])) { // todo: check logic
+      deleteClick(item);
     } else {
-      alert('in use')
+      deleteFail(item);
     }
   };
 
