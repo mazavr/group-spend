@@ -1,13 +1,32 @@
 import React, {useContext, useMemo} from 'react';
 import {globalContext} from '../../store/globalReducer';
-import {createSession, deleteSession as deleteSessionAction, setSelectedSessionId} from '../../store/globalActions';
+import {
+  createSession,
+  deleteSession as deleteSessionAction, deleteUser as deleteUserAction,
+  setSelectedSessionId,
+  showDialog
+} from '../../store/globalActions';
 import EditableList from '../../components/EditableList';
 import ListItem from '../../models/ListItem';
 import Session from '../../models/Session';
 import id from '../../utils/id';
+import ModalDialog, {dialogTypes} from "../../models/ModalDialog";
 
 function SessionsEditableList() {
   const [{sessions}, dispatch] = useContext(globalContext);
+
+  const sessionValidationRules = {
+    title: {
+      required: {
+        message: 'Title is required',
+        validate: title => !!title
+      },
+      unique: {
+        message: 'Already exists',
+        validate: title => !sessions.find(session => session.title === title)
+      }
+    }
+  };
 
   const listItems = useMemo(() => {
     return sessions.map(session => new ListItem({
@@ -21,7 +40,12 @@ function SessionsEditableList() {
   };
 
   const deleteSession = ({id}) => {
-    dispatch(deleteSessionAction(id));
+    dispatch(showDialog(new ModalDialog({
+      header: 'Delete session?',
+      body: 'Operation can\'t be undone',
+      type: dialogTypes.CONFIRM,
+      okClick: () => dispatch(deleteSessionAction(id))
+    })))
   };
 
   const openSession = item => {
@@ -33,7 +57,8 @@ function SessionsEditableList() {
                   deleteClick={deleteSession}
                   titleClick={openSession}
                   addClick={addSession}
-                  addPlaceholder={'New session'}/>
+                  addPlaceholder={'New session'}
+                  validationRules={sessionValidationRules}/>
   )
 }
 

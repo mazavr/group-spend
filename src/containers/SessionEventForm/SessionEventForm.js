@@ -1,6 +1,6 @@
 import React, {useContext, useMemo, useState} from 'react';
 import {globalContext} from '../../store/globalReducer';
-import {setSelectedSessionEventId, updateSessionEvent} from '../../store/globalActions';
+import {deleteSessionEvent, setSelectedSessionEventId, showDialog, updateSessionEvent} from '../../store/globalActions';
 import {clone} from '../../utils/object';
 import './styles.scss'
 import id from '../../utils/id';
@@ -10,6 +10,7 @@ import BlockError from '../../components/BlockError';
 import Payment from '../../models/Payment';
 import {validate} from '../../validation/validator';
 import SessionEventMoneyTransferPanel from '../SessionEventMoneyTransferPanel';
+import ModalDialog, {dialogTypes} from "../../models/ModalDialog";
 
 function SessionEventForm() {
   const [{selectedSessionId, selectedSessionEventId, users, sessions}, dispatch] = useContext(globalContext);
@@ -30,7 +31,7 @@ function SessionEventForm() {
   const validationRules = {
     title: {
       required: {
-        message: 'Field is required',
+        message: 'Title is required',
         validate: title => !!title
       },
       unique: {
@@ -104,10 +105,15 @@ function SessionEventForm() {
   };
 
   const onPaymentDelete = payment => {
-    setEditingEventWithCalculation({
-      ...editingEvent,
-      payments: editingEvent.payments.filter(eventPayment => eventPayment.id !== payment.id)
-    })
+    dispatch(showDialog(new ModalDialog({
+      header: 'Delete payment?',
+      body: 'Operation can\'t be undone',
+      type: dialogTypes.CONFIRM,
+      okClick: () => setEditingEventWithCalculation({
+        ...editingEvent,
+        payments: editingEvent.payments.filter(eventPayment => eventPayment.id !== payment.id)
+      })
+    })))
   };
 
   const onOpen = () => {
@@ -140,6 +146,7 @@ function SessionEventForm() {
                    min={0}
                    className={`base-input base-input--money-input ${errors.amount ? 'base-input--invalid' : ''}`}
                    readOnly={editingEvent.closed}
+                   onFocus={e => e.target.select()}
                    value={editingEvent.amount}
                    onChange={event => onFieldEdit({...editingEvent, amount: +event.target.value})}/>
             <BlockError errors={errors.amount}/>

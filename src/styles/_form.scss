@@ -101,6 +101,6 @@ $darkenAmount: 4;
 .base-error {
   line-height: 1.2;
   font-family: $baseFontFamily;
-  font-size: $textFontSize;
   color: $colorDanger;
+  font-size: $controlFontSize;
 }

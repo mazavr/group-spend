@@ -1,13 +1,33 @@
 import React, {useContext, useMemo} from 'react';
 import {globalContext} from '../../store/globalReducer';
-import {createSessionEvent, deleteSessionEvent, setSelectedSessionEventId} from '../../store/globalActions';
+import {
+  createSessionEvent,
+  deleteSession as deleteSessionAction,
+  deleteSessionEvent,
+  setSelectedSessionEventId,
+  showDialog
+} from '../../store/globalActions';
 import EditableList from '../../components/EditableList/EditableList';
 import SessionEvent from '../../models/SessionEvent';
 import ListItem from '../../models/ListItem';
 import id from '../../utils/id';
+import ModalDialog, {dialogTypes} from "../../models/ModalDialog";
 
 function EventList({session}) {
   const [, dispatch] = useContext(globalContext);
+
+  const eventValidationRules = {
+    title: {
+      required: {
+        message: 'Title is required',
+        validate: title => !!title
+      },
+      unique: {
+        message: 'Already exists',
+        validate: title => !session.events.find(event => event.title === title)
+      }
+    }
+  };
 
   const listItems = useMemo(() => {
     return session.events.map(event => new ListItem({
@@ -17,7 +37,12 @@ function EventList({session}) {
   }, [session]);
 
   const deleteClick = ({id}) => {
-    dispatch(deleteSessionEvent(session.id, id));
+    dispatch(showDialog(new ModalDialog({
+      header: 'Delete event?',
+      body: 'Operation can\'t be undone',
+      type: dialogTypes.CONFIRM,
+      okClick: () => dispatch(deleteSessionEvent(session.id, id))
+    })))
   };
 
   const titleClick = ({id}) => {
@@ -38,7 +63,8 @@ function EventList({session}) {
                       deleteClick={deleteClick}
                       titleClick={titleClick}
                       addClick={addEventClick}
-                      addPlaceholder={'New event'}/>
+                      addPlaceholder={'New event'}
+                      validationRules={eventValidationRules}/>
       </div>
     </div>
   )

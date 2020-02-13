@@ -1,14 +1,11 @@
 import React, {useContext, useMemo} from 'react';
 import {globalContext} from '../../store/globalReducer';
-import {
-  createUser,
-  deleteUser as deleteUserAction,
-  setSelectedUserId
-} from '../../store/globalActions';
+import {createUser, deleteUser as deleteUserAction, setSelectedUserId, showDialog} from '../../store/globalActions';
 import EditableList from '../../components/EditableList';
 import ListItem from '../../models/ListItem';
 import User from '../../models/User';
 import id from '../../utils/id';
+import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
 function UsersEditableList() {
   const [{users, sessions}, dispatch] = useContext(globalContext);
@@ -16,12 +13,12 @@ function UsersEditableList() {
   const userValidationRules = {
     title: {
       required: {
-        message: 'Field is required',
-        validate: name => !!name
+        message: 'Name is required',
+        validate: title => !!title
       },
       unique: {
         message: 'Already exists',
-        validate: name => !users.find(user => user.name === name)
+        validate: title => !users.find(user => user.name === title)
       }
     },
     onDelete: {
@@ -53,11 +50,23 @@ function UsersEditableList() {
   };
 
   const deleteUser = ({id}) => {
-    dispatch(deleteUserAction(id));
+    dispatch(showDialog(new ModalDialog({
+      header: 'Delete user?',
+      body: 'He is not used by any events and can be safely deleted.',
+      type: dialogTypes.CONFIRM,
+      okClick: () => dispatch(deleteUserAction(id))
+    })))
   };
 
   const openUser = item => {
     dispatch(setSelectedUserId(item.id));
+  };
+
+  const deleteFail = () => {
+    dispatch(showDialog(new ModalDialog({
+      header: 'Can\'t delete user',
+      body: 'It is used by some of events'
+    })))
   };
 
   return (
@@ -66,7 +75,8 @@ function UsersEditableList() {
                   titleClick={openUser}
                   addClick={addUser}
                   addPlaceholder={'New friend'}
-                  validationRules={userValidationRules}/>
+                  validationRules={userValidationRules}
+                  deleteFail={deleteFail}/>
   )
 }
 

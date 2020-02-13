@@ -6,6 +6,7 @@ import Users from '../containers/Users';
 import viewNames from '../constants/viewNames';
 import UsersService from '../services/UsersService';
 import SessionsService from '../services/SessionsService';
+import ModalDialogList from '../containers/ModalDialogList';
 
 function App() {
   const [store, dispatch] = useReducer(globalReducer, {
@@ -34,6 +35,7 @@ function App() {
           <Sessions/>
         </div>
       </div>
+      <ModalDialogList/>
     </globalContext.Provider>
   )
 }

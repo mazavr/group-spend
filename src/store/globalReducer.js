@@ -13,7 +13,8 @@ export const globalState = {
   selectedSessionEvent: null,
   selectedSessionEventId: null,
   selectedUser: null,
-  selectedUserId: null
+  selectedUserId: null,
+  modalDialogs: []
 };
 
 export const init = initState => {
@@ -92,11 +93,6 @@ export const globalReducer = (state, action) => {
         ...state,
         view: action.view
       };
-    case actionTypes.SET_SELECTED_SESSION_EVENT:
-      return {
-        ...state,
-        selectedSessionEvent: action.event
-      };
     case actionTypes.SET_SELECTED_SESSION_EVENT_ID:
       return {
         ...state,
@@ -126,6 +122,16 @@ export const globalReducer = (state, action) => {
             }
             : session;
         })
+      };
+    case actionTypes.SHOW_DIALOG:
+      return {
+        ...state,
+        modalDialogs: [...state.modalDialogs, action.dialog]
+      };
+    case actionTypes.HIDE_DIALOG:
+      return {
+        ...state,
+        modalDialogs: state.modalDialogs.slice(0, state.modalDialogs.length - 1)
       };
     default:
       throw new Error('Unknown reducer action');

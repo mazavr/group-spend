@@ -62,10 +62,10 @@ export function recalculatePaymentsTotalAmount(event) {
 
   event.payments.filter(p => !p.isCustomTotal).forEach(p => {
     p.totalAmount = equalPart;
-    if (rest > 0) {
-      rest--;
+    if (rest-- > 0) {
       p.totalAmount++;
     }
+    p.totalAmount = Math.max(p.totalAmount, 0);
   });
 
   return event;

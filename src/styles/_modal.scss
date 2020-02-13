@@ -1,0 +1,29 @@
+@import 'variables';
+
+.modal {
+  position: fixed;
+  background-color: rgba(50, 50, 50, .8);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 40px $gap 0 $gap;
+
+  &__container {
+    max-width: $pageWidthMax;
+    margin: 0 auto;
+    padding: 2*$gap;
+    background-color: white;
+    border-radius: $borderRadius;
+  }
+
+  &__header {
+  }
+
+  &__body {
+    padding: 2*$gap 0;
+  }
+
+  &__footer {
+  }
+}
