@@ -11,61 +11,96 @@ export function TransferItem(props) {
 
 export function getRequiredTransfers(inputItems) {
   let inputItemsMap = inputItems.reduce((m, c) => {
-    if (!m.has(c.key)) {
-      m.set(c.key, c.balance)
+    const newBalance = m.has(c.key)
+      ? m.get(c.key) + c.balance
+      : c.balance;
+
+    if (newBalance === 0) {
+      m.delete(c.key);
     } else {
-      m.set(c.key, m.get(c.key) + c.balance)
+      m.set(c.key, newBalance);
     }
+
     return m;
   }, new Map());
 
-  let transactions = [];  // todo: performance
-
-  let items = (new Array(...inputItemsMap))
-    .filter(i => i[1] !== 0)
-    .map(item => ({key: item[0], balance: item[1]}));
-
-  while (items.length > 0) {
-    let negative = items.find(i => i.balance < 0);
-    let positive = items.find(i => i.balance > 0);
-
-    let minTransactionValue = Math.min(-negative.balance, positive.balance);
-
-    negative.balance += minTransactionValue;
-    positive.balance -= minTransactionValue;
-
-    transactions.push(new TransferItem({
-      from: negative.key,
-      to: positive.key,
-      amount: minTransactionValue
-    }));
-
-    items = items.filter(i => i.balance !== 0) // todo: performance
+  if (inputItemsMap.size === 0) {
+    return [];
   }
 
-  return transactions
+  let transactions = new Array(inputItemsMap.size - 1);
+  let transactionInd = 0;
+
+  while (inputItemsMap.size) {
+    let negativeBalanceItem = null;
+    let positiveBalanceItem = null;
+
+    for (const [key, balance] of inputItemsMap) {
+      if (balance < 0 && !negativeBalanceItem) {
+        negativeBalanceItem = {key, balance};
+      } else if (balance > 0 && !positiveBalanceItem) {
+        positiveBalanceItem = {key, balance};
+      }
+      if (positiveBalanceItem && negativeBalanceItem) {
+        break;
+      }
+    }
+
+    let minTransactionValue = Math.min(-negativeBalanceItem.balance, positiveBalanceItem.balance);
+
+    negativeBalanceItem.balance += minTransactionValue;
+    positiveBalanceItem.balance -= minTransactionValue;
+
+    transactions[transactionInd++] = new TransferItem({
+      from: negativeBalanceItem.key,
+      to: positiveBalanceItem.key,
+      amount: minTransactionValue
+    });
+
+    if (negativeBalanceItem.balance === 0) {
+      inputItemsMap.delete(negativeBalanceItem.key)
+    } else {
+      inputItemsMap.set(negativeBalanceItem.key, negativeBalanceItem.balance)
+    }
+
+    if (positiveBalanceItem.balance === 0) {
+      inputItemsMap.delete(positiveBalanceItem.key)
+    } else {
+      inputItemsMap.set(positiveBalanceItem.key, positiveBalanceItem.balance)
+    }
+  }
+
+  return transactions;
 }
 
 export function recalculatePaymentsTotalAmount(event) {
-  let customTotalPayments = event.payments.filter(p => p.isCustomTotal).length;
-  let equalTotalPayment = event.payments.length - customTotalPayments;
+  let amountToSplit = event.amount;
+  let usersCountToSplit = 0;
 
-  let amountToSplit = event.amount - event.payments.reduce((p, c) => {
-    return c.isCustomTotal ? p + c.totalAmount : p;
-  }, 0);
-
-  let equalPart = equalTotalPayment === 0
-    ? 0
-    : Math.floor(amountToSplit / equalTotalPayment);
-
-  let rest = amountToSplit - equalPart * equalTotalPayment;
-
-  event.payments.filter(p => !p.isCustomTotal).forEach(p => {
-    p.totalAmount = equalPart;
-    if (rest-- > 0) {
-      p.totalAmount++;
+  event.payments.forEach(payment => {
+    if (payment.isCustomTotal) {
+      amountToSplit -= payment.totalAmount;
+    } else {
+      usersCountToSplit++;
     }
-    p.totalAmount = Math.max(p.totalAmount, 0);
+  });
+
+  if (usersCountToSplit === 0) {
+    return event;
+  }
+
+  let equalPart = Math.floor(amountToSplit / usersCountToSplit);
+  let restPart = amountToSplit % usersCountToSplit;
+
+  event.payments.forEach(p => {
+    if (!p.isCustomTotal) {
+      p.totalAmount = equalPart;
+      if (restPart > 0) {
+        p.totalAmount++;
+        restPart--;
+      }
+      p.totalAmount = Math.max(p.totalAmount, 0);
+    }
   });
 
   return event;

@@ -12,13 +12,16 @@ function SessionEventMoneyTransferPanel({event, onCloseSession, onOpenSession}) 
     })));
 
     return getRequiredTransfers(preparedPayments)
-  }, [event]);
+  }, [event, users]);
 
-  return <MoneyTransferPanel title={'Required transfers to close session:'}
-                             transfers={transfersForPanel}
-                             close={onCloseSession}
-                             open={onOpenSession}
-                             closed={event.closed}/>
+  return <MoneyTransferPanel
+    openedTitle={'Required transfers to close event:'}
+    closedTitle={'Event was closed with next transfers:'}
+    noTransfersText={'No transfers required'}
+    transfers={transfersForPanel}
+    close={onCloseSession}
+    open={onOpenSession}
+    closed={event.closed}/>
 }
 
 export default SessionEventMoneyTransferPanel;

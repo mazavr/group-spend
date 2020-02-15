@@ -1,24 +1,18 @@
 import React, {useState} from 'react';
 import BlockError from '../BlockError';
-import {validate} from '../../validation/validator';
+import {useValidator} from "../../validation/useValidator";
 
 function TitleForm({title: originalTitle, onSubmit, onCancel, validationRules}) {
   const [title, setTitle] = useState(originalTitle);
-  const [errors, setErrors] = useState({});
-
-  const validateForm = form => {
-    let validationResult = validate(['title'], validationRules, form);
-    setErrors(validationResult || {});
-    return validationResult === undefined;
-  };
+  const {errors, validate} = useValidator(validationRules);
 
   const handleSubmit = () => {
-    validateForm({title}) && onSubmit(title);
+    validate({title}, ['title']) && onSubmit(title);
   };
 
   const changeTitle = title => {
     setTitle(title);
-    validateForm({title});
+    validate({title}, ['title']);
   };
 
   return <form className={'v-list'} onSubmit={event => {

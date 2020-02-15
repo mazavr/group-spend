@@ -1,20 +1,22 @@
 import React from 'react';
 import MoneyTransferList from '../MoneyTransferList';
 
-function MoneyTransferPanel({transfers, closed, open, close, title}) {
+function MoneyTransferPanel({transfers, closed, open, close, closedTitle, openedTitle, noTransfersText}) {
   return (
     <div className={'panel panel--info'}>
       <div className={'v-list'}>
         <div className={'v-list__item'}>
-          {closed ? (
-            <h5>Was closed with next transfers:</h5>
-          ) : (
-            <h5>{title || 'Required transfers to close:'}</h5>
-          )}
+          <h5>{closed ? closedTitle : openedTitle}</h5>
         </div>
-        <div className={'v-list__item'}>
+
+        {transfers.length > 0 && <div className={'v-list__item'}>
           <MoneyTransferList transfers={transfers}/>
-        </div>
+        </div>}
+
+        {transfers.length === 0 && noTransfersText && <div className={'v-list__item'}>
+          <div className={'base-text'}>{noTransfersText}</div>
+        </div>}
+
         <div className={'v-list__item  v-list__item--4xgap'}>
           <div className={'h-list h-list--pull-right'}>
             <div className={'h-list__item'}>

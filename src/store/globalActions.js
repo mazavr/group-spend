@@ -13,6 +13,7 @@ export const actionTypes = {
   UPDATE_SESSION_EVENT: 'UPDATE_SESSION_EVENT',
   DELETE_SESSION_EVENT: 'DELETE_SESSION_EVENT',
   SET_SELECTED_SESSION_EVENT_ID: 'SET_SELECTED_SESSION_EVENT_ID',
+  OPEN_SESSION_EVENT: 'OPEN_SESSION_EVENT',
   SHOW_DIALOG: 'SHOW_DIALOG',
   HIDE_DIALOG: 'HIDE_DIALOG',
 };
@@ -71,6 +72,10 @@ export function deleteSessionEvent(sessionId, eventId) {
 
 export function setSelectedSessionEventId(id) {
   return {type: actionTypes.SET_SELECTED_SESSION_EVENT_ID, id};
+}
+
+export function openSessionEvent(sessionId, event) {
+  return {type: actionTypes.OPEN_SESSION_EVENT, sessionId, event};
 }
 
 export function showDialog(dialog) {

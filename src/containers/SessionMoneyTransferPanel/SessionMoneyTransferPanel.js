@@ -6,23 +6,30 @@ import {globalContext} from '../../store/globalReducer';
 function SessionMoneyTransferPanel({session, onCloseSession, onOpenSession}) {
   const [{users}] = useContext(globalContext);
   const transfersForPanel = useMemo(() => {
-    let preparedPayments = session.events // todo: performance refactoring
-      .filter(event => !event.closed)
-      .map(event => event.payments)
-      .flat()
-      .map(p => new TransferInputItem(({
-        key: users.find(u => u.id === p.userId),
-        balance: p.amount - p.totalAmount
-      })));
+    const payments = [];
 
-    return getRequiredTransfers(preparedPayments)
-  }, [session]);
+    session.events.forEach(event => {
+      if (!event.closed) {
+        event.payments.forEach(payment => {
+          payments.push(new TransferInputItem({
+            key: users.find(u => u.id === payment.userId),
+            balance: payment.amount - payment.totalAmount
+          }))
+        })
+      }
+    });
 
-  return <MoneyTransferPanel title={'Required transfers to close session:'}
-                             transfers={transfersForPanel}
-                             close={onCloseSession}
-                             open={onOpenSession}
-                             closed={session.closed}/>
+    return getRequiredTransfers(payments)
+  }, [session, users]);
+
+  return <MoneyTransferPanel
+    openedTitle={'Required transfers to close session:'}
+    closedTitle={'Session was closed.'}
+    noTransfersText={'No transfers required'}
+    transfers={transfersForPanel}
+    close={onCloseSession}
+    open={onOpenSession}
+    closed={session.closed}/>
 }
 
 export default SessionMoneyTransferPanel;

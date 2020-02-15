@@ -41,7 +41,8 @@ function UsersEditableList() {
   const userListItems = useMemo(() => {
     return users.map(user => new ListItem({
       id: user.id,
-      title: user.name
+      title: user.name,
+      tag: user
     }))
   }, [users]);
 
@@ -49,9 +50,9 @@ function UsersEditableList() {
     dispatch(createUser(new User({name, id: id()})));
   };
 
-  const deleteUser = ({id}) => {
+  const deleteUser = ({id, tag: {name}}) => {
     dispatch(showDialog(new ModalDialog({
-      header: 'Delete user?',
+      header: `Delete user "${name}"?`,
       body: 'He is not used by any events and can be safely deleted.',
       type: dialogTypes.CONFIRM,
       okClick: () => dispatch(deleteUserAction(id))
@@ -62,9 +63,9 @@ function UsersEditableList() {
     dispatch(setSelectedUserId(item.id));
   };
 
-  const deleteFail = () => {
+  const deleteFail = ({tag: {name}}) => {
     dispatch(showDialog(new ModalDialog({
-      header: 'Can\'t delete user',
+      header: `Can't delete user "${name}"`,
       body: 'It is used by some of events'
     })))
   };

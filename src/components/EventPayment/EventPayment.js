@@ -1,29 +1,27 @@
-import React, {useEffect, useState} from 'react';
-import {validate} from "../../validation/validator";
+import React, {useEffect} from 'react';
+import {useValidator} from '../../validation/useValidator';
+
+const validationRules = {
+  totalAmount: {
+    notNegative: {
+      message: 'Should be not negative',
+      validate: amount => amount >= 0
+    }
+  },
+  amount: {
+    notNegative: {
+      message: 'Should be not negative',
+      validate: amount => amount >= 0
+    }
+  }
+};
 
 function EventPayment({payment, users, deleteClick, edit, readOnly}) {
-  const [errors, setErrors] = useState({});
-
-  const validationRules = {
-    totalAmount: {
-      notNegative: {
-        message: 'Should be not negative',
-        validate: amount => amount >= 0
-      }
-    }
-  };
-
-  const validateForm = (model, propsArray) => {
-    let validationResult = validationRules
-      ? validate(propsArray, validationRules, model)
-      : undefined;
-    setErrors(validationResult || {});
-    return validationResult === undefined;
-  };
+  const {errors, validate} = useValidator(validationRules);
 
   useEffect(() => {
-    validateForm(payment, ['totalAmount']);
-  }, [payment.totalAmount]);
+    validate(payment, ['totalAmount', 'amount']);
+  }, [payment, validate]);
 
   return (
     <div className={'panel'}>
@@ -63,7 +61,7 @@ function EventPayment({payment, users, deleteClick, edit, readOnly}) {
               <input type={'number'}
                      min={0}
                      readOnly={readOnly}
-                     className={'base-input base-input--money-input'}
+                     className={`base-input base-input--money-input ${errors && errors.amount ? 'base-input--invalid' : ''}`}
                      value={payment.amount}
                      onFocus={e => e.target.select()}
                      onChange={event => edit({...payment, amount: +event.target.value})}/>

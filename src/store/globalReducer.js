@@ -8,11 +8,8 @@ export const globalState = {
   users: [],
   sessions: [],
   view: viewNames.SESSIONS,
-  selectedSession: null,
   selectedSessionId: null,
-  selectedSessionEvent: null,
   selectedSessionEventId: null,
-  selectedUser: null,
   selectedUserId: null,
   modalDialogs: []
 };
@@ -117,6 +114,23 @@ export const globalReducer = (state, action) => {
               events: session.events.map(event => {
                 return event.id === action.event.id
                   ? {...event, ...action.event}
+                  : event;
+              })
+            }
+            : session;
+        })
+      };
+    case actionTypes.OPEN_SESSION_EVENT:
+      return {
+        ...state,
+        sessions: state.sessions.map(session => {
+          return session.id === action.sessionId
+            ? {
+              ...session,
+              closed: false,
+              events: session.events.map(event => {
+                return event.id === action.event.id
+                  ? {...event, closed: false}
                   : event;
               })
             }

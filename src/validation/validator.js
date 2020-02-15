@@ -1,15 +1,15 @@
-export const validate = (propsArray, modelRules, model) => {
-  let newErrors = {};
+export const validate = (model, modelValidationRules, propsArray) => {
+  let errors = {};
 
-  propsArray.forEach(propName => {
-    let propRules = modelRules[propName];
-    Object.keys(propRules).forEach(ruleKey => {
-      if (!propRules[ruleKey].validate.call(model, model[propName])) {
-        newErrors[propName] = newErrors[propName] || {};
-        newErrors[propName][ruleKey] = propRules[ruleKey].message;
+  propsArray.forEach(propNameToValidate => {
+    let propRules = modelValidationRules[propNameToValidate];
+    Object.entries(propRules).forEach(([ruleKey, rule]) => {
+      if (!rule.validate.call(model, model[propNameToValidate])) {
+        errors[propNameToValidate] = errors[propNameToValidate] || {};
+        errors[propNameToValidate][ruleKey] = rule.message;
       }
     })
   });
 
-  return Object.keys(newErrors).length === 0 ? undefined : newErrors;
+  return Object.keys(errors).length === 0 ? undefined : errors;
 };

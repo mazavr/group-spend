@@ -1,4 +1,4 @@
-import {getRequiredTransfers} from './payment';
+import {getRequiredTransfers, recalculatePaymentsTotalAmount} from './payment';
 
 describe('getRequiredTransfers', () => {
   it('works with one item', () => {
@@ -81,3 +81,35 @@ describe('getRequiredTransfers', () => {
   });
 });
 
+describe('recalculatePaymentsTotalAmount', () => {
+  it('works with one empty event', () => {
+    const event = {amount: 0, payments: []};
+    recalculatePaymentsTotalAmount(event);
+    expect(event).toEqual({amount: 0, payments: []});
+  });
+  it('works with one payment', () => {
+    const event = {amount: 10, payments: [{amount: 10, totalAmount: 10}]};
+    recalculatePaymentsTotalAmount(event);
+    expect(event).toEqual({amount: 10, payments: [{amount: 10, totalAmount: 10}]});
+  });
+  it('split totalAmount equally', () => {
+    const event = {amount: 20, payments: [{totalAmount: 0}, {totalAmount: 0}]};
+    recalculatePaymentsTotalAmount(event);
+    expect(event).toEqual({amount: 20, payments: [{totalAmount: 10}, {totalAmount: 10}]});
+  });
+  it('split totalAmount equally + 1 for first items', () => {
+    const event = {amount: 21, payments: [{totalAmount: 21}, {totalAmount: 0}]};
+    recalculatePaymentsTotalAmount(event);
+    expect(event).toEqual({amount: 21, payments: [{totalAmount: 11}, {totalAmount: 10}]});
+  });
+  it('preserve custom total values', () => {
+    const event = {amount: 20, payments: [{isCustomTotal: true, totalAmount: 5}, {totalAmount: 0}]};
+    recalculatePaymentsTotalAmount(event);
+    expect(event).toEqual({amount: 20, payments: [{isCustomTotal: true, totalAmount: 5}, {totalAmount: 15}]});
+  });
+  it('should return passed event', () => {
+    const event = {amount: 20, payments: [{isCustomTotal: true, totalAmount: 5}, {totalAmount: 0}]};
+    const returnedEvent = recalculatePaymentsTotalAmount(event);
+    expect(event).toBe(returnedEvent);
+  })
+});

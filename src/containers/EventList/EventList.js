@@ -1,17 +1,11 @@
 import React, {useContext, useMemo} from 'react';
 import {globalContext} from '../../store/globalReducer';
-import {
-  createSessionEvent,
-  deleteSession as deleteSessionAction,
-  deleteSessionEvent,
-  setSelectedSessionEventId,
-  showDialog
-} from '../../store/globalActions';
+import {createSessionEvent, deleteSessionEvent, setSelectedSessionEventId, showDialog} from '../../store/globalActions';
 import EditableList from '../../components/EditableList/EditableList';
 import SessionEvent from '../../models/SessionEvent';
 import ListItem from '../../models/ListItem';
 import id from '../../utils/id';
-import ModalDialog, {dialogTypes} from "../../models/ModalDialog";
+import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
 function EventList({session}) {
   const [, dispatch] = useContext(globalContext);
@@ -32,13 +26,14 @@ function EventList({session}) {
   const listItems = useMemo(() => {
     return session.events.map(event => new ListItem({
       id: event.id,
-      title: `${event.title} ${event.closed ? ' (closed)' : ''}`
+      title: `${event.title} ${event.closed ? ' (closed)' : ''}`,
+      tag: event
     }))
   }, [session]);
 
-  const deleteClick = ({id}) => {
+  const deleteClick = ({id, tag: {title}}) => {
     dispatch(showDialog(new ModalDialog({
-      header: 'Delete event?',
+      header: `Delete event "${title}"?`,
       body: 'Operation can\'t be undone',
       type: dialogTypes.CONFIRM,
       okClick: () => dispatch(deleteSessionEvent(session.id, id))

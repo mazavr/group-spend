@@ -1,11 +1,18 @@
 @import '../../styles/variables';
 
 .list-item {
+  &__title-wrapper {
+    display: table;
+    min-height: $controlHeight;
+  }
+
   &__title {
     font-family: $baseFontFamily;
     font-size: $controlFontSize;
-    line-height: $controlHeight;
+    line-height: $controlHeight / 2;
     cursor: pointer;
+    display: table-cell;
+    vertical-align: middle;
   }
 
   &__actions {

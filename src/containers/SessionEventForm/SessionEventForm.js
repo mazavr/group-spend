@@ -1,6 +1,6 @@
 import React, {useContext, useMemo, useState} from 'react';
 import {globalContext} from '../../store/globalReducer';
-import {deleteSessionEvent, setSelectedSessionEventId, showDialog, updateSessionEvent} from '../../store/globalActions';
+import {openSessionEvent, setSelectedSessionEventId, showDialog, updateSessionEvent} from '../../store/globalActions';
 import {clone} from '../../utils/object';
 import './styles.scss'
 import id from '../../utils/id';
@@ -8,9 +8,9 @@ import EventPayment from '../../components/EventPayment';
 import {recalculatePaymentsTotalAmount} from '../../utils/payment';
 import BlockError from '../../components/BlockError';
 import Payment from '../../models/Payment';
-import {validate} from '../../validation/validator';
 import SessionEventMoneyTransferPanel from '../SessionEventMoneyTransferPanel';
-import ModalDialog, {dialogTypes} from "../../models/ModalDialog";
+import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
+import {useValidator} from '../../validation/useValidator';
 
 function SessionEventForm() {
   const [{selectedSessionId, selectedSessionEventId, users, sessions}, dispatch] = useContext(globalContext);
@@ -18,17 +18,14 @@ function SessionEventForm() {
     return sessions.find(session => session.id === selectedSessionId).events.find(event => event.id === selectedSessionEventId);
   }, [sessions, selectedSessionId, selectedSessionEventId]);
   const [editingEvent, setEditingEvent] = useState(clone(originalSessionEvent));
-  const [errors, setErrors] = useState({});
 
   const getRequiredAmount = () => editingEvent.amount - editingEvent.payments.reduce((p, c) => p + c.amount, 0);
-
   const getRequiredTotalAmount = () => editingEvent.amount - editingEvent.payments.reduce((p, c) => p + c.totalAmount, 0);
 
-  const [requiredAmount, requiredTotalAmount] = useMemo(() => {
-    return [getRequiredAmount(), getRequiredTotalAmount()]
-  }, [editingEvent.amount, editingEvent.payments]);
+  const requiredAmount = getRequiredAmount();
+  const requiredTotalAmount = getRequiredTotalAmount();
 
-  const validationRules = {
+  const {errors, validate} = useValidator({
     title: {
       required: {
         message: 'Title is required',
@@ -55,20 +52,14 @@ function SessionEventForm() {
         validate: () => getRequiredTotalAmount() === 0
       }
     }
-  };
-
-  const checkErrors = (propsArray, modelRules, model) => {
-    let validationResult = validate(propsArray, modelRules, model);
-    setErrors(validationResult || {});
-    return validationResult === undefined;
-  };
+  });
 
   const cancel = () => {
     dispatch(setSelectedSessionEventId(null))
   };
 
   const update = () => {
-    if (checkErrors(['title', 'amount', 'form'], validationRules, editingEvent)) {
+    if (validate(editingEvent, ['title', 'amount', 'form'])) {
       dispatch(updateSessionEvent(selectedSessionId, editingEvent));
       dispatch(setSelectedSessionEventId(null));
     }
@@ -101,12 +92,12 @@ function SessionEventForm() {
 
   const onFieldEdit = event => {
     setEditingEventWithCalculation(event);
-    checkErrors(['title', 'amount'], validationRules, event);
+    validate(event, ['title', 'amount']);
   };
 
   const onPaymentDelete = payment => {
     dispatch(showDialog(new ModalDialog({
-      header: 'Delete payment?',
+      header: `Delete payment of user "${users.find(user => user.id === payment.userId).name}"?`,
       body: 'Operation can\'t be undone',
       type: dialogTypes.CONFIRM,
       okClick: () => setEditingEventWithCalculation({
@@ -118,7 +109,7 @@ function SessionEventForm() {
 
   const onOpen = () => {
     setEditingEvent({...editingEvent, closed: false});
-    dispatch(updateSessionEvent(selectedSessionId, {...editingEvent, closed: false}));
+    dispatch(openSessionEvent(selectedSessionId, editingEvent));
   };
 
   const onClose = () => {
@@ -149,7 +140,6 @@ function SessionEventForm() {
                    onFocus={e => e.target.select()}
                    value={editingEvent.amount}
                    onChange={event => onFieldEdit({...editingEvent, amount: +event.target.value})}/>
-            <BlockError errors={errors.amount}/>
           </div>
         </div>
       </div>

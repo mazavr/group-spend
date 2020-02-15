@@ -1,13 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import SimpleList from '../SimpleList';
-import {validate} from '../../validation/validator';
 import BlockError from '../BlockError';
+import {useValidator} from '../../validation/useValidator';
 
 function EditableList({items, deleteClick, deleteFail, titleClick, addClick, addPlaceholder, validationRules}) {
   const [filter, setFilter] = useState('');
   const [filtered, setFiltered] = useState([]);
   const [title, setTitle] = useState('');
-  const [errors, setErrors] = useState({});
+  const {errors, validate, setErrors} = useValidator(validationRules);
 
   useEffect(() => {
     const filterLowerCase = filter.toLowerCase();
@@ -16,17 +16,9 @@ function EditableList({items, deleteClick, deleteFail, titleClick, addClick, add
       : items);
   }, [filter, items]);
 
-  const validateForm = (model, propsArray) => {
-    let validationResult = validationRules
-      ? validate(propsArray, validationRules, model)
-      : undefined;
-    setErrors(validationResult || {});
-    return validationResult === undefined;
-  };
-
   const onSubmit = event => {
     event.preventDefault();
-    if (validateForm({title}, ['title'])) {
+    if (validate({title}, ['title'])) {
       setTitle('');
       addClick(title)
     }
@@ -38,7 +30,7 @@ function EditableList({items, deleteClick, deleteFail, titleClick, addClick, add
   };
 
   const onDeleteClick = item => {
-    if (!validationRules.onDelete || validateForm(item, ['onDelete'])) { // todo: check logic
+    if (!validationRules.onDelete || validate(item, ['onDelete'])) {
       deleteClick(item);
     } else {
       deleteFail(item);
@@ -75,4 +67,4 @@ function EditableList({items, deleteClick, deleteFail, titleClick, addClick, add
   )
 }
 
-export default React.memo(EditableList);
+export default EditableList;

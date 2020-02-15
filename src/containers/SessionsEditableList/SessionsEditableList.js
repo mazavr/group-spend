@@ -2,7 +2,7 @@ import React, {useContext, useMemo} from 'react';
 import {globalContext} from '../../store/globalReducer';
 import {
   createSession,
-  deleteSession as deleteSessionAction, deleteUser as deleteUserAction,
+  deleteSession as deleteSessionAction,
   setSelectedSessionId,
   showDialog
 } from '../../store/globalActions';
@@ -10,7 +10,7 @@ import EditableList from '../../components/EditableList';
 import ListItem from '../../models/ListItem';
 import Session from '../../models/Session';
 import id from '../../utils/id';
-import ModalDialog, {dialogTypes} from "../../models/ModalDialog";
+import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
 function SessionsEditableList() {
   const [{sessions}, dispatch] = useContext(globalContext);
@@ -31,7 +31,8 @@ function SessionsEditableList() {
   const listItems = useMemo(() => {
     return sessions.map(session => new ListItem({
       id: session.id,
-      title: session.title
+      title: `${session.title} ${session.closed ? ' (closed)' : ''}`,
+      tag: session
     }))
   }, [sessions]);
 
@@ -39,9 +40,9 @@ function SessionsEditableList() {
     dispatch(createSession(new Session({title, id: id()})));
   };
 
-  const deleteSession = ({id}) => {
+  const deleteSession = ({id, tag: {title}}) => {
     dispatch(showDialog(new ModalDialog({
-      header: 'Delete session?',
+      header: `Delete session "${title}"?`,
       body: 'Operation can\'t be undone',
       type: dialogTypes.CONFIRM,
       okClick: () => dispatch(deleteSessionAction(id))
@@ -62,4 +63,4 @@ function SessionsEditableList() {
   )
 }
 
-export default SessionsEditableList
+export default SessionsEditableList;

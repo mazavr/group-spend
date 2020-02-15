@@ -8,8 +8,10 @@ function SimpleList({items, deleteClick, titleClick}) {
         <div className={'v-list__item'} key={item.id}>
           <div className={'trailing-block'}>
             <div className={'trailing-block__body'} onClick={() => titleClick(item)}>
-              <div className={'list-item__title'}>
-                {item.title}
+              <div className={'list-item__title-wrapper'}>
+                <div className={'list-item__title'}>
+                  {item.title}
+                </div>
               </div>
             </div>
             <div className={'trailing-block__tail'}>
@@ -27,4 +29,4 @@ function SimpleList({items, deleteClick, titleClick}) {
   )
 }
 
-export default React.memo(SimpleList);
+export default SimpleList;

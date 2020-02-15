@@ -1,10 +1,6 @@
 import React from 'react';
 
 function MoneyTransferList({transfers}) {
-  if (!transfers || transfers.length === 0) {
-    return <div className={'base-text'}>No transfers</div>;
-  }
-
   return (
     <div className={'v-list'}>
       {transfers.map(transfer =>
@@ -17,7 +13,7 @@ function MoneyTransferList({transfers}) {
                   <div className={'base-text'}>{transfer.from.name}</div>
                 </div>
                 <div className={'h-list__item'}>
-                  <div className={'base-text'}>-></div>
+                  <div className={'base-text'}>&#10140;</div>
                 </div>
                 <div className={'h-list__item'}>
                   <div className={'base-text'}>{transfer.to.name}</div>
