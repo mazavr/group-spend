@@ -1,1 +1,1 @@
-export {default} from './TitleForm'
+export {default} from './TitleForm';

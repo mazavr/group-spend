@@ -1,1 +1,1 @@
-export {default} from './EventPayment'
+export {default} from './EventPayment';

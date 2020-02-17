@@ -1,1 +1,1 @@
-export {default} from './BlockError'
+export {default} from './BlockError';

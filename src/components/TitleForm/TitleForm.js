@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import BlockError from '../BlockError';
-import {useValidator} from "../../validation/useValidator";
+import {useValidator} from '../../validation/useValidator';
 
 function TitleForm({title: originalTitle, onSubmit, onCancel, validationRules}) {
   const [title, setTitle] = useState(originalTitle);

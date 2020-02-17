@@ -1,1 +1,1 @@
-export {default} from './MoneyTransferPanel'
+export {default} from './MoneyTransferPanel';

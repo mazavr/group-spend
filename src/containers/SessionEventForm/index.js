@@ -1,1 +1,1 @@
-export {default} from './SessionEventForm'
+export {default} from './SessionEventForm';

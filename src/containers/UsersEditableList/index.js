@@ -1,1 +1,1 @@
-export {default} from './UsersEditableList'
+export {default} from './UsersEditableList';

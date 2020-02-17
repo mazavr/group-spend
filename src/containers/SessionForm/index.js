@@ -1,1 +1,1 @@
-export {default} from './SessionForm'
+export {default} from './SessionForm';

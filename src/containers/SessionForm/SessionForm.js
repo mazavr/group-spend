@@ -5,7 +5,7 @@ import {
   setSelectedSessionId, showDialog,
   updateSession as updateSessionAction
 } from '../../store/globalActions';
-import EventList from '../EventList/EventList';
+import EventList from '../EventList';
 import SessionTitleForm from '../SessionTitleForm';
 import SessionMoneyTransferPanel from '../SessionMoneyTransferPanel';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
