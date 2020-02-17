@@ -2,12 +2,13 @@ import React, {useContext, useMemo} from 'react';
 import {globalContext} from '../../store/globalReducer';
 import {
   closeSession as closeSessionAction,
-  setSelectedSessionId,
+  setSelectedSessionId, showDialog,
   updateSession as updateSessionAction
 } from '../../store/globalActions';
 import EventList from '../EventList/EventList';
 import SessionTitleForm from '../SessionTitleForm';
 import SessionMoneyTransferPanel from '../SessionMoneyTransferPanel';
+import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
 function SessionForm() {
   const [{selectedSessionId, sessions}, dispatch] = useContext(globalContext);
@@ -20,7 +21,12 @@ function SessionForm() {
   };
 
   const closeSession = () => {
-    dispatch(closeSessionAction(selectedSessionId));
+    dispatch(showDialog(new ModalDialog({
+      header: `Close session "${originalSession.title}"?`,
+      body: 'It will close all opened session events. Operation can\'t be undone',
+      type: dialogTypes.CONFIRM,
+      okClick: () => dispatch(closeSessionAction(selectedSessionId))
+    })))
   };
 
   const openSession = () => {

@@ -9,7 +9,6 @@ import {
 import EditableList from '../../components/EditableList';
 import ListItem from '../../models/ListItem';
 import Session from '../../models/Session';
-import id from '../../utils/id';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
 function SessionsEditableList() {
@@ -37,7 +36,7 @@ function SessionsEditableList() {
   }, [sessions]);
 
   const addSession = title => {
-    dispatch(createSession(new Session({title, id: id()})));
+    dispatch(createSession(new Session({title})));
   };
 
   const deleteSession = ({id, tag: {title}}) => {

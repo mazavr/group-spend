@@ -4,7 +4,6 @@ import {createUser, deleteUser as deleteUserAction, setSelectedUserId, showDialo
 import EditableList from '../../components/EditableList';
 import ListItem from '../../models/ListItem';
 import User from '../../models/User';
-import id from '../../utils/id';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
 function UsersEditableList() {
@@ -47,7 +46,7 @@ function UsersEditableList() {
   }, [users]);
 
   const addUser = name => {
-    dispatch(createUser(new User({name, id: id()})));
+    dispatch(createUser(new User({name})));
   };
 
   const deleteUser = ({id, tag: {name}}) => {

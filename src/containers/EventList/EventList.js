@@ -4,7 +4,6 @@ import {createSessionEvent, deleteSessionEvent, setSelectedSessionEventId, showD
 import EditableList from '../../components/EditableList/EditableList';
 import SessionEvent from '../../models/SessionEvent';
 import ListItem from '../../models/ListItem';
-import id from '../../utils/id';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
 function EventList({session}) {
@@ -45,7 +44,7 @@ function EventList({session}) {
   };
 
   const addEventClick = title => {
-    dispatch(createSessionEvent(session.id, new SessionEvent({title, id: id()})));
+    dispatch(createSessionEvent(session.id, new SessionEvent({title})));
   };
 
   return (

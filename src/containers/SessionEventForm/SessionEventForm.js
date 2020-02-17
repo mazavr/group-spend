@@ -1,9 +1,8 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {globalContext} from '../../store/globalReducer';
 import {openSessionEvent, setSelectedSessionEventId, showDialog, updateSessionEvent} from '../../store/globalActions';
 import {clone} from '../../utils/object';
 import './styles.scss'
-import id from '../../utils/id';
 import {recalculatePaymentsTotalAmount} from '../../utils/payment';
 import BlockError from '../../components/BlockError';
 import Payment from '../../models/Payment';
@@ -11,13 +10,18 @@ import SessionEventMoneyTransferPanel from '../SessionEventMoneyTransferPanel';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 import {useValidator} from '../../validation/useValidator';
 import EventPaymentList from '../EventPaymentList';
+import SessionEvent from '../../models/SessionEvent';
 
 function SessionEventForm() {
   const [{selectedSessionId, selectedSessionEventId, users, sessions}, dispatch] = useContext(globalContext);
   const originalSessionEvent = useMemo(() => {
     return sessions.find(session => session.id === selectedSessionId).events.find(event => event.id === selectedSessionEventId);
   }, [sessions, selectedSessionId, selectedSessionEventId]);
-  const [editingEvent, setEditingEvent] = useState(clone(originalSessionEvent));
+  const [editingEvent, setEditingEvent] = useState(new SessionEvent());
+
+  useEffect(() => {
+    setEditingEvent(clone(originalSessionEvent))
+  }, [originalSessionEvent]);
 
   const getRequiredAmount = () => editingEvent.amount - editingEvent.payments.reduce((p, c) => p + c.amount, 0);
   const getRequiredTotalAmount = () => editingEvent.amount - editingEvent.payments.reduce((p, c) => p + c.totalAmount, 0);
@@ -72,10 +76,7 @@ function SessionEventForm() {
   const addPayment = userId => {
     setEditingEventWithCalculation({
       ...editingEvent,
-      payments: [...editingEvent.payments, new Payment({
-        id: id(),
-        userId
-      })]
+      payments: [...editingEvent.payments, new Payment({userId})]
     })
   };
 
@@ -108,13 +109,16 @@ function SessionEventForm() {
   };
 
   const onOpen = () => {
-    setEditingEvent({...editingEvent, closed: false});
-    dispatch(openSessionEvent(selectedSessionId, editingEvent));
+    dispatch(openSessionEvent(selectedSessionId, {...editingEvent, closed: false}));
   };
 
   const onClose = () => {
-    setEditingEvent({...editingEvent, closed: true});
-    dispatch(updateSessionEvent(selectedSessionId, {...editingEvent, closed: true}));
+    dispatch(showDialog(new ModalDialog({
+      header: `Close event "${editingEvent.title}"?`,
+      body: 'Are you sure you want to close event?',
+      type: dialogTypes.CONFIRM,
+      okClick: () => dispatch(updateSessionEvent(selectedSessionId, {...editingEvent, closed: true}))
+    })))
   };
 
   return (
