@@ -4,13 +4,13 @@ import {openSessionEvent, setSelectedSessionEventId, showDialog, updateSessionEv
 import {clone} from '../../utils/object';
 import './styles.scss'
 import id from '../../utils/id';
-import EventPayment from '../../components/EventPayment';
 import {recalculatePaymentsTotalAmount} from '../../utils/payment';
 import BlockError from '../../components/BlockError';
 import Payment from '../../models/Payment';
 import SessionEventMoneyTransferPanel from '../SessionEventMoneyTransferPanel';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 import {useValidator} from '../../validation/useValidator';
+import EventPaymentList from '../EventPaymentList';
 
 function SessionEventForm() {
   const [{selectedSessionId, selectedSessionEventId, users, sessions}, dispatch] = useContext(globalContext);
@@ -147,19 +147,13 @@ function SessionEventForm() {
         <h5>Payments ({editingEvent.payments.length})</h5>
       </div>
       <div className={'v-list__item'}>
-        <div className={'v-list'}>
-          {editingEvent.payments.length ? (editingEvent.payments.map(payment =>
-            <div className={'v-list__item'} key={payment.id}>
-              <EventPayment payment={payment}
-                            edit={onPaymentEdit}
-                            deleteClick={onPaymentDelete}
-                            readOnly={editingEvent.closed}
-                            users={users}/>
-            </div>
-          )) : (
-            <div className={'base-text'}>No payments yet</div>
-          )}
-        </div>
+        {editingEvent.payments.length ? (
+          <EventPaymentList event={editingEvent}
+                            onPaymentDelete={onPaymentDelete}
+                            onPaymentEdit={onPaymentEdit}/>
+        ) : (
+          <div className={'base-text'}>No payments yet</div>
+        )}
       </div>
       {requiredAmount !== 0 && <div className={'v-list__item'}>
         <div className={`panel ${errors.form && errors.form.requiredAmount ? 'panel--danger' : 'panel--info'}`}>
