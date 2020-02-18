@@ -4,11 +4,15 @@ import UserForm from '../UserForm';
 import UsersEditableList from '../UsersEditableList';
 
 function Users() {
-  const [{selectedUserId}] = useContext(globalContext);
+  const [{selectedUserId, users, sessions}, dispatch] = useContext(globalContext);
 
   return selectedUserId
-    ? <UserForm/>
-    : <UsersEditableList/>
+    ? <UserForm selectedUserId={selectedUserId}
+                users={users}
+                dispatch={dispatch}/>
+    : <UsersEditableList users={users}
+                         sessions={sessions}
+                         dispatch={dispatch}/>
 }
 
 export default Users

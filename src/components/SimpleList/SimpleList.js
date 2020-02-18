@@ -29,4 +29,4 @@ function SimpleList({items, deleteClick, titleClick}) {
   )
 }
 
-export default SimpleList;
+export default React.memo(SimpleList);

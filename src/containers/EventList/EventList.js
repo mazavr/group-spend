@@ -1,14 +1,11 @@
-import React, {useContext, useMemo} from 'react';
-import {globalContext} from '../../store/globalReducer';
+import React from 'react';
 import {createSessionEvent, deleteSessionEvent, setSelectedSessionEventId, showDialog} from '../../store/globalActions';
 import EditableList from '../../components/EditableList/EditableList';
 import SessionEvent from '../../models/SessionEvent';
 import ListItem from '../../models/ListItem';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
-function EventList({session}) {
-  const [, dispatch] = useContext(globalContext);
-
+function EventList({session, dispatch}) {
   const eventValidationRules = {
     title: {
       required: {
@@ -22,13 +19,11 @@ function EventList({session}) {
     }
   };
 
-  const listItems = useMemo(() => {
-    return session.events.map(event => new ListItem({
-      id: event.id,
-      title: `${event.title} ${event.closed ? ' (closed)' : ''}`,
-      tag: event
-    }))
-  }, [session]);
+  const eventListItems = session.events.map(event => new ListItem({
+    id: event.id,
+    title: `${event.title} ${event.closed ? ' (closed)' : ''}`,
+    tag: event
+  }));
 
   const deleteClick = ({id, tag: {title}}) => {
     dispatch(showDialog(new ModalDialog({
@@ -53,7 +48,7 @@ function EventList({session}) {
         <h5>Session events:</h5>
       </div>
       <div className={'v-list__item'}>
-        <EditableList items={listItems}
+        <EditableList items={eventListItems}
                       deleteClick={deleteClick}
                       titleClick={titleClick}
                       addClick={addEventClick}

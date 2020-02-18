@@ -1,20 +1,13 @@
 import React from 'react';
 
-const ErrorLine = props =>
-  <div className="base-error">
-    {props.children}
-  </div>;
-
-function BlockError({error, errors}) {
-  if (error) {
-    return <ErrorLine>{error}</ErrorLine>
-  } else if (errors) {
-    return Object.keys(errors).map(error =>
-      <ErrorLine key={error}>{errors[error]}</ErrorLine>
-    )
+function BlockError({errors}) {
+  if (!errors) {
+    return null;
   }
 
-  return null;
+  return Object.entries(errors).map(([error, message]) =>
+    <div key={error} className={'base-error'}>{message}</div>
+  )
 }
 
-export default BlockError;
+export default React.memo(BlockError);

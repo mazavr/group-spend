@@ -1,5 +1,4 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
-import {globalContext} from '../../store/globalReducer';
+import React, {useEffect, useMemo, useState} from 'react';
 import {openSessionEvent, setSelectedSessionEventId, showDialog, updateSessionEvent} from '../../store/globalActions';
 import {clone} from '../../utils/object';
 import './styles.scss'
@@ -12,8 +11,7 @@ import {useValidator} from '../../validation/useValidator';
 import EventPaymentList from '../EventPaymentList';
 import SessionEvent from '../../models/SessionEvent';
 
-function SessionEventForm() {
-  const [{selectedSessionId, selectedSessionEventId, users, sessions}, dispatch] = useContext(globalContext);
+function SessionEventForm({selectedSessionId, selectedSessionEventId, users, sessions, dispatch}) {
   const originalSessionEvent = useMemo(() => {
     return sessions.find(session => session.id === selectedSessionId).events.find(event => event.id === selectedSessionEventId);
   }, [sessions, selectedSessionId, selectedSessionEventId]);
@@ -153,6 +151,7 @@ function SessionEventForm() {
       <div className={'v-list__item'}>
         {editingEvent.payments.length ? (
           <EventPaymentList event={editingEvent}
+                            users={users}
                             onPaymentDelete={onPaymentDelete}
                             onPaymentEdit={onPaymentEdit}/>
         ) : (
@@ -191,10 +190,11 @@ function SessionEventForm() {
       {requiredAmount === 0 && requiredTotalAmount === 0 && <div className={'v-list__item  v-list__item--4xgap'}>
         <SessionEventMoneyTransferPanel onOpenSession={onOpen}
                                         onCloseSession={onClose}
+                                        users={users}
                                         event={editingEvent}/>
       </div>}
     </div>
   )
 }
 
-export default SessionEventForm;
+export default React.memo(SessionEventForm);

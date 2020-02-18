@@ -5,15 +5,26 @@ import SessionsEditableList from '../SessionsEditableList';
 import SessionEventForm from '../SessionEventForm';
 
 function Sessions() {
-  const [{selectedSessionId, selectedSessionEventId}] = useContext(globalContext);
+  const [{selectedSessionId, selectedSessionEventId, sessions, users}, dispatch] = useContext(globalContext);
 
   if (selectedSessionEventId) {
-    return <SessionEventForm/>
+    return <SessionEventForm
+      selectedSessionId={selectedSessionId}
+      selectedSessionEventId={selectedSessionEventId}
+      users={users}
+      sessions={sessions}
+      dispatch={dispatch}/>
   } else if (selectedSessionId) {
-    return <SessionForm/>
+    return <SessionForm
+      selectedSessionId={selectedSessionId}
+      sessions={sessions}
+      users={users}
+      dispatch={dispatch}/>
   }
 
-  return <SessionsEditableList/>
+  return <SessionsEditableList
+    sessions={sessions}
+    dispatch={dispatch}/>
 }
 
 export default Sessions

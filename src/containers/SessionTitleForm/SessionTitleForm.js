@@ -1,10 +1,7 @@
-import React, {useContext} from 'react';
-import {globalContext} from '../../store/globalReducer';
+import React from 'react';
 import TitleForm from '../../components/TitleForm';
 
-function SessionTitleForm({session: originalSession, onSave, onCancel}) {
-  const [{sessions}] = useContext(globalContext);
-
+function SessionTitleForm({session: originalSession, onSave, onCancel, sessions}) {
   const validationRules = {
     title: {
       required: {

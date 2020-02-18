@@ -1,13 +1,9 @@
-import React, {useContext, useMemo} from 'react';
-import {globalContext} from '../../store/globalReducer';
+import React from 'react';
 import {setSelectedUserId, updateUser as updateUserAction} from '../../store/globalActions';
 import TitleForm from '../../components/TitleForm';
 
-function UserForm() {
-  const [{selectedUserId, users}, dispatch] = useContext(globalContext);
-  const originalUser = useMemo(() => {
-    return users.find(user => user.id === selectedUserId);
-  }, [users, selectedUserId]);
+function UserForm({selectedUserId, users, dispatch}) {
+  const originalUser = users.find(user => user.id === selectedUserId);
 
   const validationRules = {
     title: {
@@ -46,4 +42,4 @@ function UserForm() {
   )
 }
 
-export default UserForm;
+export default React.memo(UserForm);

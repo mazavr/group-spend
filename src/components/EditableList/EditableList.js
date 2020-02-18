@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import SimpleList from '../SimpleList';
 import BlockError from '../BlockError';
 import {useValidator} from '../../validation/useValidator';
@@ -29,13 +29,13 @@ function EditableList({items, deleteClick, deleteFail, titleClick, addClick, add
     setTitle(title);
   };
 
-  const onDeleteClick = item => {
+  const onDeleteClick = useCallback(item => {
     if (!validationRules.onDelete || validate(item, ['onDelete'])) {
       deleteClick(item);
     } else {
       deleteFail(item);
     }
-  };
+  }, [validationRules, validate, deleteFail, deleteClick]);
 
   return (
     <div className={'v-list'}>

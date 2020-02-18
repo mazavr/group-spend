@@ -1,5 +1,4 @@
-import React, {useContext, useMemo} from 'react';
-import {globalContext} from '../../store/globalReducer';
+import React from 'react';
 import {
   createSession,
   deleteSession as deleteSessionAction,
@@ -11,9 +10,7 @@ import ListItem from '../../models/ListItem';
 import Session from '../../models/Session';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
-function SessionsEditableList() {
-  const [{sessions}, dispatch] = useContext(globalContext);
-
+function SessionsEditableList({sessions, dispatch}) {
   const sessionValidationRules = {
     title: {
       required: {
@@ -27,13 +24,11 @@ function SessionsEditableList() {
     }
   };
 
-  const listItems = useMemo(() => {
-    return sessions.map(session => new ListItem({
-      id: session.id,
-      title: `${session.title} ${session.closed ? ' (closed)' : ''}`,
-      tag: session
-    }))
-  }, [sessions]);
+  const sessionListItems = sessions.map(session => new ListItem({
+    id: session.id,
+    title: `${session.title} ${session.closed ? ' (closed)' : ''}`,
+    tag: session
+  }));
 
   const addSession = title => {
     dispatch(createSession(new Session({title})));
@@ -53,7 +48,7 @@ function SessionsEditableList() {
   };
 
   return (
-    <EditableList items={listItems}
+    <EditableList items={sessionListItems}
                   deleteClick={deleteSession}
                   titleClick={openSession}
                   addClick={addSession}
@@ -62,4 +57,4 @@ function SessionsEditableList() {
   )
 }
 
-export default SessionsEditableList;
+export default React.memo(SessionsEditableList);

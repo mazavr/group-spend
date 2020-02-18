@@ -1,11 +1,9 @@
-import React, {useContext, useMemo} from 'react';
+import React from 'react';
 import MoneyTransferPanel from '../../components/MoneyTransferPanel';
 import {getRequiredTransfers, TransferInputItem} from '../../utils/payment';
-import {globalContext} from '../../store/globalReducer';
 
-function SessionMoneyTransferPanel({session, onCloseSession, onOpenSession}) {
-  const [{users}] = useContext(globalContext);
-  const transfersForPanel = useMemo(() => {
+function SessionMoneyTransferPanel({session, onCloseSession, onOpenSession, users}) {
+  const transfersForPanel = (() => {
     const payments = [];
 
     session.events.forEach(event => {
@@ -20,7 +18,7 @@ function SessionMoneyTransferPanel({session, onCloseSession, onOpenSession}) {
     });
 
     return getRequiredTransfers(payments)
-  }, [session, users]);
+  })();
 
   return <MoneyTransferPanel
     openedTitle={'Required transfers to close session:'}

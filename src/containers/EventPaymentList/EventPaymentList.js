@@ -1,10 +1,7 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import EventPayment from '../../components/EventPayment';
-import {globalContext} from '../../store/globalReducer';
 
-function EventPaymentList({event, onPaymentEdit, onPaymentDelete}) {
-  const [{users}] = useContext(globalContext);
-
+function EventPaymentList({event, onPaymentEdit, onPaymentDelete, users}) {
   return <div className={'v-list'}>
     {event.payments.map(payment => <div className={'v-list__item'} key={payment.id}>
       <EventPayment payment={payment}

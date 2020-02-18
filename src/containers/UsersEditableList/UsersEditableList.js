@@ -1,14 +1,11 @@
-import React, {useContext, useMemo} from 'react';
-import {globalContext} from '../../store/globalReducer';
+import React from 'react';
 import {createUser, deleteUser as deleteUserAction, setSelectedUserId, showDialog} from '../../store/globalActions';
 import EditableList from '../../components/EditableList';
 import ListItem from '../../models/ListItem';
 import User from '../../models/User';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
-function UsersEditableList() {
-  const [{users, sessions}, dispatch] = useContext(globalContext);
-
+function UsersEditableList({users, sessions, dispatch}) {
   const userValidationRules = {
     title: {
       required: {
@@ -37,13 +34,11 @@ function UsersEditableList() {
     }
   };
 
-  const userListItems = useMemo(() => {
-    return users.map(user => new ListItem({
-      id: user.id,
-      title: user.name,
-      tag: user
-    }))
-  }, [users]);
+  const userListItems = users.map(user => new ListItem({
+    id: user.id,
+    title: user.name,
+    tag: user
+  }));
 
   const addUser = name => {
     dispatch(createUser(new User({name})));
@@ -80,4 +75,4 @@ function UsersEditableList() {
   )
 }
 
-export default UsersEditableList;
+export default React.memo(UsersEditableList);

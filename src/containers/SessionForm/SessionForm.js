@@ -1,5 +1,4 @@
-import React, {useContext, useMemo} from 'react';
-import {globalContext} from '../../store/globalReducer';
+import React from 'react';
 import {
   closeSession as closeSessionAction,
   setSelectedSessionId, showDialog,
@@ -10,11 +9,8 @@ import SessionTitleForm from '../SessionTitleForm';
 import SessionMoneyTransferPanel from '../SessionMoneyTransferPanel';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
-function SessionForm() {
-  const [{selectedSessionId, sessions}, dispatch] = useContext(globalContext);
-  const originalSession = useMemo(() => {
-    return sessions.find(session => session.id === selectedSessionId);
-  }, [sessions, selectedSessionId]);
+function SessionForm({selectedSessionId, sessions, dispatch, users}) {
+  const originalSession = sessions.find(session => session.id === selectedSessionId);
 
   const cancelEdit = () => {
     dispatch(setSelectedSessionId(null))
@@ -45,14 +41,17 @@ function SessionForm() {
       </div>
       <div className={'v-list__item'}>
         <SessionTitleForm session={originalSession}
+                          sessions={sessions}
                           onSave={saveTitle}
                           onCancel={cancelEdit}/>
       </div>
       <div className={'v-list__item v-list__item--4xgap'}>
-        <EventList session={originalSession}/>
+        <EventList session={originalSession}
+                   dispatch={dispatch}/>
       </div>
       <div className={'v-list__item  v-list__item--4xgap'}>
         <SessionMoneyTransferPanel session={originalSession}
+                                   users={users}
                                    onCloseSession={closeSession}
                                    onOpenSession={openSession}/>
       </div>
@@ -60,4 +59,4 @@ function SessionForm() {
   )
 }
 
-export default SessionForm;
+export default React.memo(SessionForm);
