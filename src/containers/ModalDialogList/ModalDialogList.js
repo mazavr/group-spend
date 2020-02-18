@@ -1,11 +1,8 @@
-import React, {useContext} from 'react';
-import {globalContext} from '../../store/globalReducer';
+import React from 'react';
 import {hideDialog} from '../../store/globalActions';
 import {dialogTypes} from '../../models/ModalDialog';
 
-function ModalDialogList() {
-  const [{modalDialogs}, dispatch] = useContext(globalContext);
-
+function ModalDialogList({modalDialogs, dispatch}) {
   if (modalDialogs.length === 0) {
     return null;
   }
@@ -56,4 +53,4 @@ function ModalDialogList() {
   )
 }
 
-export default ModalDialogList;
+export default React.memo(ModalDialogList);

@@ -26,7 +26,7 @@ function App() {
     <globalContext.Provider value={[store, dispatch]}>
       <div className="v-list">
         <div className={'v-list__item'}>
-          <BaseNavigation/>
+          <BaseNavigation view={store.view} dispatch={dispatch} selectedSessionEventId={store.selectedSessionEventId}/>
         </div>
         <div className={`v-list__item ${store.view === viewNames.USERS ? '' : 'display--none'}`}>
           <Users/>
@@ -35,7 +35,7 @@ function App() {
           <Sessions/>
         </div>
       </div>
-      <ModalDialogList/>
+      <ModalDialogList dispatch={dispatch} modalDialogs={store.modalDialogs}/>
     </globalContext.Provider>
   )
 }

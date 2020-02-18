@@ -1,6 +1,5 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import './styles.scss'
-import {globalContext} from '../../store/globalReducer';
 import {
   setSelectedSessionEventId,
   setSelectedSessionId,
@@ -10,9 +9,7 @@ import viewNames from '../../constants/viewNames';
 
 const nav = [{id: viewNames.SESSIONS, title: 'Sessions'}, {id: viewNames.USERS, title: 'Friends'}];
 
-function BaseNavigation() {
-  const [{view, selectedSessionEventId}, dispatch] = useContext(globalContext);
-
+function BaseNavigation({view, selectedSessionEventId, dispatch}) {
   const navClick = newView => {
     if (newView === view) {
       if (view === viewNames.SESSIONS && selectedSessionEventId) {
@@ -40,4 +37,4 @@ function BaseNavigation() {
   )
 }
 
-export default BaseNavigation;
+export default React.memo(BaseNavigation);
