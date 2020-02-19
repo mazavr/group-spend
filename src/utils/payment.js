@@ -105,3 +105,11 @@ export function recalculatePaymentsTotalAmount(event) {
 
   return event;
 }
+
+export function getRequiredEventAmount(event) {
+  return event.amount - event.payments.reduce((p, c) => p + c.amount, 0)
+}
+
+export function getRequiredEventTotalAmount(event) {
+  return event.amount - event.payments.reduce((p, c) => p + c.totalAmount, 0)
+}

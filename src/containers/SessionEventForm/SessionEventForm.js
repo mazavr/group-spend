@@ -1,31 +1,27 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {openSessionEvent, setSelectedSessionEventId, showDialog, updateSessionEvent} from '../../store/globalActions';
-import {clone} from '../../utils/object';
+import {setSelectedSessionEventId, updateSessionEvent} from '../../store/globalActions';
 import './styles.scss'
-import {recalculatePaymentsTotalAmount} from '../../utils/payment';
+import {getRequiredEventAmount, getRequiredEventTotalAmount, recalculatePaymentsTotalAmount} from '../../utils/payment';
 import BlockError from '../../components/BlockError';
 import Payment from '../../models/Payment';
 import SessionEventMoneyTransferPanel from '../SessionEventMoneyTransferPanel';
-import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 import {useValidator} from '../../validation/useValidator';
 import EventPaymentList from '../EventPaymentList';
-import SessionEvent from '../../models/SessionEvent';
 
 function SessionEventForm({selectedSessionId, selectedSessionEventId, users, sessions, dispatch}) {
-  const originalSessionEvent = useMemo(() => {
-    return sessions.find(session => session.id === selectedSessionId).events.find(event => event.id === selectedSessionEventId);
+  const {originalSessionEvent, originalSessionTitle, originalSession} = useMemo(() => {
+    let originalSession = sessions.find(session => session.id === selectedSessionId);
+    let originalSessionEvent = originalSession.events.find(event => event.id === selectedSessionEventId);
+    return {originalSessionEvent, originalSessionTitle: originalSessionEvent.title, originalSession};
   }, [sessions, selectedSessionId, selectedSessionEventId]);
-  const [editingEvent, setEditingEvent] = useState(new SessionEvent());
+  const [editingEvent, setEditingEvent] = useState(originalSessionEvent);
 
   useEffect(() => {
-    setEditingEvent(clone(originalSessionEvent))
+    setEditingEvent(originalSessionEvent);
   }, [originalSessionEvent]);
 
-  const getRequiredAmount = () => editingEvent.amount - editingEvent.payments.reduce((p, c) => p + c.amount, 0);
-  const getRequiredTotalAmount = () => editingEvent.amount - editingEvent.payments.reduce((p, c) => p + c.totalAmount, 0);
-
-  const requiredAmount = getRequiredAmount();
-  const requiredTotalAmount = getRequiredTotalAmount();
+  const requiredAmount = getRequiredEventAmount(editingEvent);
+  const requiredTotalAmount = getRequiredEventTotalAmount(editingEvent);
 
   const {errors, validate} = useValidator({
     title: {
@@ -35,7 +31,9 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
       },
       unique: {
         message: 'Already exists',
-        validate: title => originalSessionEvent.title === title || !sessions.find(session => session.title === title)
+        validate: title => {
+          return originalSessionTitle === title || !originalSession.events.find(event => event.title === title);
+        }
       }
     },
     amount: {
@@ -47,11 +45,15 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
     form: {
       requiredAmount: {
         message: 'requiredAmount',
-        validate: () => getRequiredAmount() === 0
+        validate: function validate() {
+          return getRequiredEventAmount(this) === 0
+        }
       },
       requiredTotalAmount: {
         message: 'requiredTotalAmount',
-        validate: () => getRequiredTotalAmount() === 0
+        validate: function validate() {
+          return getRequiredEventTotalAmount(this) === 0;
+        }
       }
     }
   });
@@ -78,45 +80,9 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
     })
   };
 
-  const onPaymentEdit = payment => {
-    setEditingEventWithCalculation({
-      ...editingEvent,
-      payments: editingEvent.payments.map(eventPayment => {
-        return eventPayment.id === payment.id
-          ? {...eventPayment, ...payment}
-          : eventPayment;
-      })
-    });
-  };
-
   const onFieldEdit = event => {
     setEditingEventWithCalculation(event);
     validate(event, ['title', 'amount']);
-  };
-
-  const onPaymentDelete = payment => {
-    dispatch(showDialog(new ModalDialog({
-      header: `Delete payment of user "${users.find(user => user.id === payment.userId).name}"?`,
-      body: 'Operation can\'t be undone',
-      type: dialogTypes.CONFIRM,
-      okClick: () => setEditingEventWithCalculation({
-        ...editingEvent,
-        payments: editingEvent.payments.filter(eventPayment => eventPayment.id !== payment.id)
-      })
-    })))
-  };
-
-  const onOpen = () => {
-    dispatch(openSessionEvent(selectedSessionId, {...editingEvent, closed: false}));
-  };
-
-  const onClose = () => {
-    dispatch(showDialog(new ModalDialog({
-      header: `Close event "${editingEvent.title}"?`,
-      body: 'Are you sure you want to close event?',
-      type: dialogTypes.CONFIRM,
-      okClick: () => dispatch(updateSessionEvent(selectedSessionId, {...editingEvent, closed: true}))
-    })))
   };
 
   return (
@@ -150,10 +116,10 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
       </div>
       <div className={'v-list__item'}>
         {editingEvent.payments.length ? (
-          <EventPaymentList event={editingEvent}
-                            users={users}
-                            onPaymentDelete={onPaymentDelete}
-                            onPaymentEdit={onPaymentEdit}/>
+          <EventPaymentList eventEdit={setEditingEventWithCalculation}
+                            dispatch={dispatch}
+                            event={editingEvent}
+                            users={users}/>
         ) : (
           <div className={'base-text'}>No payments yet</div>
         )}
@@ -188,8 +154,8 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
         </div>
       </div>
       {requiredAmount === 0 && requiredTotalAmount === 0 && <div className={'v-list__item  v-list__item--4xgap'}>
-        <SessionEventMoneyTransferPanel onOpenSession={onOpen}
-                                        onCloseSession={onClose}
+        <SessionEventMoneyTransferPanel dispatch={dispatch}
+                                        sessionId={selectedSessionId}
                                         users={users}
                                         event={editingEvent}/>
       </div>}
