@@ -1,7 +1,10 @@
 import React from 'react';
 import MoneyTransferList from '../MoneyTransferList';
 
-function MoneyTransferPanel({transfers, closed, open, close, closedTitle, openedTitle, noTransfersText}) {
+function MoneyTransferPanel({
+                              transfers, closed, open, close, closedTitle, openedTitle, noTransfersText,
+                              closeButtonText = 'Close', openButtonText = 'Open'
+                            }) {
   return (
     <div className={'panel panel--info'}>
       <div className={'v-list'}>
@@ -23,11 +26,11 @@ function MoneyTransferPanel({transfers, closed, open, close, closedTitle, opened
               {closed ? (
                 <button type={'button'}
                         className={'base-button base-button--light'}
-                        onClick={open}>Open</button>
+                        onClick={open}>{openButtonText}</button>
               ) : (
                 <button type={'button'}
                         className={'base-button base-button--success'}
-                        onClick={close}>Close</button>
+                        onClick={close}>{closeButtonText}</button>
               )}
             </div>
           </div>

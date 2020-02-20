@@ -34,7 +34,10 @@ function SessionEventMoneyTransferPanel({event, users, sessionId, dispatch}) {
     transfers={transfersForPanel}
     close={onClose}
     open={onOpen}
-    closed={event.closed}/>
+    closed={event.closed}
+    closeButtonText={'Close and Save'}
+    openButtonText={'Open and Save'}
+  />
 }
 
 export default SessionEventMoneyTransferPanel;
