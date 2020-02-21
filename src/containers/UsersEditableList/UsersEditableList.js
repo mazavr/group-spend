@@ -1,5 +1,7 @@
 import React from 'react';
-import {createUser, deleteUser as deleteUserAction, setSelectedUserId, showDialog} from '../../store/globalActions';
+import {createUser, deleteUser as deleteUserAction} from '../../store/usersActions';
+import {setSelectedUserId} from '../../store/globalActions';
+import {showDialog} from '../../store/modalDialogsActions';
 import EditableList from '../../components/EditableList';
 import ListItem from '../../models/ListItem';
 import User from '../../models/User';

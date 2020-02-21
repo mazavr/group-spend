@@ -1,5 +1,6 @@
 import React from 'react';
-import {setSelectedSessionId, updateSession as updateSessionAction} from '../../store/globalActions';
+import {setSelectedSessionId} from '../../store/globalActions';
+import {updateSession as updateSessionAction} from '../../store/sessionsActions';
 import EventList from '../EventList';
 import SessionTitleForm from '../SessionTitleForm';
 import SessionMoneyTransferPanel from '../SessionMoneyTransferPanel';

@@ -1,4 +1,4 @@
-import {actionTypes} from './globalActions';
+import {actionTypes} from './actionTypes';
 import {deleteObjectFromArray, updateObjectInArray} from './reducerUtilities';
 
 export function usersReducer(usersState = [], action) {

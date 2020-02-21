@@ -1,5 +1,5 @@
 import React from 'react';
-import {hideDialog} from '../../store/globalActions';
+import {hideDialog} from '../../store/modalDialogsActions';
 import {dialogTypes} from '../../models/ModalDialog';
 
 function ModalDialogList({modalDialogs, dispatch}) {

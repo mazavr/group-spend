@@ -1,9 +1,10 @@
 import {createContext} from 'react';
-import {actionTypes} from './globalActions';
+import {actionTypes} from './actionTypes';
 import viewNames from '../constants/viewNames';
 import {updateObject} from './reducerUtilities'
 import {usersReducer} from './usersReducer';
 import {sessionsReducer} from './sessionsReducer';
+import {modalDialogsReducer} from './modalDialogsReducer';
 
 export const globalContext = createContext(null);
 
@@ -27,22 +28,19 @@ export const init = initState => {
 export const globalReducer = (state, action) => {
   state = updateObject(state, {
     users: usersReducer(state.users, action),
-    sessions: sessionsReducer(state.sessions, action)
+    sessions: sessionsReducer(state.sessions, action),
+    modalDialogs: modalDialogsReducer(state.modalDialogs, action)
   });
 
   switch (action.type) {
-    case actionTypes.SET_SELECTED_SESSION_ID:
-      return updateObject(state, {selectedSessionId: action.id});
-    case actionTypes.SET_SELECTED_USER_ID:
-      return updateObject(state, {selectedUserId: action.id});
     case actionTypes.SET_VIEW:
       return updateObject(state, {view: action.view});
+    case actionTypes.SET_SELECTED_SESSION_ID:
+      return updateObject(state, {selectedSessionId: action.id});
     case actionTypes.SET_SELECTED_SESSION_EVENT_ID:
       return updateObject(state, {selectedSessionEventId: action.id});
-    case actionTypes.SHOW_DIALOG:
-      return updateObject(state, {modalDialogs: [...state.modalDialogs, action.dialog]});
-    case actionTypes.HIDE_DIALOG:
-      return updateObject(state, {modalDialogs: state.modalDialogs.slice(0, state.modalDialogs.length - 1)});
+    case actionTypes.SET_SELECTED_USER_ID:
+      return updateObject(state, {selectedUserId: action.id});
     default:
       return state;
   }

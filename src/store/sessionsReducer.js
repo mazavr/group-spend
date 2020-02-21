@@ -1,4 +1,4 @@
-import {actionTypes} from './globalActions';
+import {actionTypes} from './actionTypes';
 import {deleteObjectFromArray, updateObject, updateObjectInArray} from './reducerUtilities';
 
 export function sessionsReducer(sessionsState = [], action) {

@@ -1,6 +1,6 @@
 import React from 'react';
 import EventPayment from '../../components/EventPayment';
-import {showDialog} from '../../store/globalActions';
+import {showDialog} from '../../store/modalDialogsActions';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
 function EventPaymentList({event, users, eventEdit, dispatch}) {

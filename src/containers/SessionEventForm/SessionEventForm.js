@@ -1,5 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {setSelectedSessionEventId, updateSessionEvent} from '../../store/globalActions';
+import {setSelectedSessionEventId} from '../../store/globalActions';
+import {updateSessionEvent} from '../../store/sessionsActions';
 import './styles.scss'
 import {getRequiredEventAmount, getRequiredEventTotalAmount, recalculatePaymentsTotalAmount} from '../../utils/payment';
 import BlockError from '../../components/BlockError';

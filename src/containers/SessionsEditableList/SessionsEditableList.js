@@ -1,10 +1,7 @@
 import React from 'react';
-import {
-  createSession,
-  deleteSession as deleteSessionAction,
-  setSelectedSessionId,
-  showDialog
-} from '../../store/globalActions';
+import {setSelectedSessionId} from '../../store/globalActions';
+import {createSession, deleteSession as deleteSessionAction} from '../../store/sessionsActions';
+import {showDialog} from '../../store/modalDialogsActions';
 import EditableList from '../../components/EditableList';
 import ListItem from '../../models/ListItem';
 import Session from '../../models/Session';

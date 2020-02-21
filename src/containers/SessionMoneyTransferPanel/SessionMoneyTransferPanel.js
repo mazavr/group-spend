@@ -1,11 +1,8 @@
 import React from 'react';
 import MoneyTransferPanel from '../../components/MoneyTransferPanel';
 import {getRequiredTransfers, TransferInputItem} from '../../utils/payment';
-import {
-  closeSession as closeSessionAction,
-  showDialog,
-  updateSession as updateSessionAction
-} from '../../store/globalActions';
+import {closeSession as closeSessionAction, updateSession as updateSessionAction} from '../../store/sessionsActions';
+import {showDialog} from '../../store/modalDialogsActions';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
 function SessionMoneyTransferPanel({session, users, dispatch}) {

@@ -1,5 +1,6 @@
 import React from 'react';
-import {setSelectedUserId, updateUser as updateUserAction} from '../../store/globalActions';
+import {setSelectedUserId} from '../../store/globalActions';
+import {updateUser as updateUserAction} from '../../store/usersActions';
 import TitleForm from '../../components/TitleForm';
 
 function UserForm({selectedUserId, users, dispatch}) {

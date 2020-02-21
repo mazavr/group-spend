@@ -1,5 +1,7 @@
 import React from 'react';
-import {createSessionEvent, deleteSessionEvent, setSelectedSessionEventId, showDialog} from '../../store/globalActions';
+import {createSessionEvent, deleteSessionEvent} from '../../store/sessionsActions';
+import {setSelectedSessionEventId} from '../../store/globalActions';
+import {showDialog} from '../../store/modalDialogsActions';
 import EditableList from '../../components/EditableList/EditableList';
 import SessionEvent from '../../models/SessionEvent';
 import ListItem from '../../models/ListItem';
