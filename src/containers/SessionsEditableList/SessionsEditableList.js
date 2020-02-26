@@ -23,8 +23,9 @@ function SessionsEditableList({sessions, dispatch}) {
 
   const sessionListItems = sessions.map(session => new ListItem({
     id: session.id,
-    title: `${session.title} ${session.closed ? ' (closed)' : ''}`,
-    tag: session
+    title: session.title,
+    tag: session,
+    hint: session.closed ? '(closed)' : ''
   }));
 
   const addSession = title => {

@@ -11,6 +11,8 @@ function SimpleList({items, deleteClick, titleClick}) {
               <div className={'list-item__title-wrapper'}>
                 <div className={'list-item__title'}>
                   {item.title}
+                  {item.hint && ' '}
+                  {item.hint && <span className={'list-item__title-hint'}>{item.hint}</span>}
                 </div>
               </div>
             </div>

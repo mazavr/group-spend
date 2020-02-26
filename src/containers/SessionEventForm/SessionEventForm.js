@@ -8,6 +8,7 @@ import Payment from '../../models/Payment';
 import SessionEventMoneyTransferPanel from '../SessionEventMoneyTransferPanel';
 import {useValidator} from '../../validation/useValidator';
 import EventPaymentList from '../EventPaymentList';
+import {clone} from '../../utils/object';
 
 function SessionEventForm({selectedSessionId, selectedSessionEventId, users, sessions, dispatch}) {
   const {originalSessionEvent, originalSessionTitle, originalSession} = useMemo(() => {
@@ -15,10 +16,10 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
     let originalSessionEvent = originalSession.events.find(event => event.id === selectedSessionEventId);
     return {originalSessionEvent, originalSessionTitle: originalSessionEvent.title, originalSession};
   }, [sessions, selectedSessionId, selectedSessionEventId]);
-  const [editingEvent, setEditingEvent] = useState(originalSessionEvent);
+  const [editingEvent, setEditingEvent] = useState(clone(originalSessionEvent));
 
   useEffect(() => {
-    setEditingEvent(originalSessionEvent);
+    setEditingEvent(clone(originalSessionEvent));
   }, [originalSessionEvent]);
 
   const requiredAmount = getRequiredEventAmount(editingEvent);
@@ -112,8 +113,8 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
           </div>
         </div>
       </div>
-      <div className={'v-list__item'}>
-        <h5>Payments ({editingEvent.payments.length})</h5>
+      <div className={'v-list__item v-list__item--4xgap'}>
+        <h5>Friends payments ({editingEvent.payments.length}):</h5>
       </div>
       <div className={'v-list__item'}>
         {editingEvent.payments.length ? (

@@ -13,6 +13,11 @@
     cursor: pointer;
     display: table-cell;
     vertical-align: middle;
+    word-break: break-word;
+  }
+
+  &__title-hint {
+    color: #a4a4a4;
   }
 
   &__actions {

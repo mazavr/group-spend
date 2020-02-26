@@ -23,7 +23,8 @@ function EventList({session, dispatch}) {
 
   const eventListItems = session.events.map(event => new ListItem({
     id: event.id,
-    title: `${event.title} ${event.closed ? ' (closed)' : ''}`,
+    title: event.title,
+    hint: event.closed ? '(closed)' : '',
     tag: event
   }));
 
@@ -47,7 +48,7 @@ function EventList({session, dispatch}) {
   return (
     <div className={'v-list'}>
       <div className={'v-list__item'}>
-        <h5>Session events:</h5>
+        <h5>Session events ({eventListItems.length}):</h5>
       </div>
       <div className={'v-list__item'}>
         <EditableList items={eventListItems}
