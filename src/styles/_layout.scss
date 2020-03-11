@@ -66,6 +66,18 @@ body {
   border: 1px solid darken($colorLight, 10);
   padding: $gap;
   font-size: $textFontSize;
+  position: relative;
+
+  &__drag-helper {
+    width: 0;
+    height: 0;
+    border-top: $gap*1.8 solid darken($colorLight, 10);
+    border-right: $gap*1.8 solid transparent;
+    position: absolute;
+    top:0;
+    left: 0;
+    cursor: move;
+  }
 
   &__text {
     font-family: $baseFontFamily;

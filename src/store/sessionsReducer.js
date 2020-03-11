@@ -7,6 +7,8 @@ export function sessionsReducer(sessionsState = [], action) {
       return sessionsState.concat(action.session);
     case actionTypes.UPDATE_SESSION:
       return updateObjectInArray(sessionsState, action.session);
+    case actionTypes.UPDATE_SESSIONS:
+      return action.sessions;
     case actionTypes.CLOSE_SESSION:
       return updateObjectInArray(sessionsState, {id: action.id}, session => {
         return updateObject(session, {
@@ -27,6 +29,10 @@ export function sessionsReducer(sessionsState = [], action) {
     case actionTypes.UPDATE_SESSION_EVENT:
       return updateObjectInArray(sessionsState, {id: action.sessionId}, session => {
         return updateObject(session, {events: updateObjectInArray(session.events, action.event)});
+      });
+    case actionTypes.UPDATE_SESSION_EVENTS:
+      return updateObjectInArray(sessionsState, {id: action.sessionId}, session => {
+        return updateObject(session, {events: action.events});
       });
     case actionTypes.OPEN_SESSION_EVENT:
       return updateObjectInArray(sessionsState, {id: action.sessionId}, session => {

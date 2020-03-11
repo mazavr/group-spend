@@ -1,11 +1,12 @@
 import React from 'react';
 import {setSelectedSessionId} from '../../store/globalActions';
-import {createSession, deleteSession as deleteSessionAction} from '../../store/sessionsActions';
+import {createSession, deleteSession as deleteSessionAction, updateSessions} from '../../store/sessionsActions';
 import {showDialog} from '../../store/modalDialogsActions';
 import EditableList from '../../components/EditableList';
 import ListItem from '../../models/ListItem';
 import Session from '../../models/Session';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
+import {moveInArray} from '../../utils/array';
 
 function SessionsEditableList({sessions, dispatch}) {
   const sessionValidationRules = {
@@ -32,6 +33,10 @@ function SessionsEditableList({sessions, dispatch}) {
     dispatch(createSession(new Session({title})));
   };
 
+  const sortSessions = (indFrom, indTo) => {
+    dispatch(updateSessions(moveInArray(sessions, indFrom, indTo)));
+  };
+
   const deleteSession = ({id, tag: {title}}) => {
     dispatch(showDialog(new ModalDialog({
       header: `Delete session "${title}"?`,
@@ -47,6 +52,8 @@ function SessionsEditableList({sessions, dispatch}) {
 
   return (
     <EditableList items={sessionListItems}
+                  sort={sortSessions}
+                  isSortable={true}
                   deleteClick={deleteSession}
                   titleClick={openSession}
                   addClick={addSession}

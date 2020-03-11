@@ -2,8 +2,9 @@ import React from 'react';
 import EventPayment from '../../components/EventPayment';
 import {showDialog} from '../../store/modalDialogsActions';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
+import SortableList from '../../components/SortableList';
 
-function EventPaymentList({event, users, eventEdit, dispatch}) {
+function EventPaymentList({event, users, eventEdit, dispatch, sort}) {
   const onPaymentEdit = payment => {
     eventEdit({
       ...event,
@@ -27,15 +28,19 @@ function EventPaymentList({event, users, eventEdit, dispatch}) {
     })))
   };
 
-  return <div className={'v-list'}>
-    {event.payments.map(payment => <div className={'v-list__item'} key={payment.id}>
-      <EventPayment payment={payment}
-                    edit={onPaymentEdit}
-                    deleteClick={onPaymentDelete}
-                    readOnly={event.closed}
-                    users={users}/>
-    </div>)}
-  </div>
+  return <SortableList itemSelector={'.js-sortable-item'}
+                       dragHelperSelector={'.js-drag-helper'}
+                       sort={sort}>
+    <div className={'v-list'}>
+      {event.payments.map(payment => <div className={'v-list__item js-sortable-item'} key={payment.id}>
+        <EventPayment payment={payment}
+                      edit={onPaymentEdit}
+                      deleteClick={onPaymentDelete}
+                      readOnly={event.closed}
+                      users={users}/>
+      </div>)}
+    </div>
+  </SortableList>
 }
 
 export default EventPaymentList;

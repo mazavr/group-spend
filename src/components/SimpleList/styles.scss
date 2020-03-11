@@ -6,6 +6,13 @@
     min-height: $controlHeight;
   }
 
+  &__drag-helper {
+    width: 14px;
+    display: table-cell;
+    border-left: 4px solid lightgray;
+    cursor: move;
+  }
+
   &__title {
     font-family: $baseFontFamily;
     font-size: $controlFontSize;
@@ -21,6 +28,5 @@
   }
 
   &__actions {
-
   }
 }

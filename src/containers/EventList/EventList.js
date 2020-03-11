@@ -1,11 +1,16 @@
 import React from 'react';
-import {createSessionEvent, deleteSessionEvent} from '../../store/sessionsActions';
+import {
+  createSessionEvent,
+  deleteSessionEvent,
+  updateSessionEvents
+} from '../../store/sessionsActions';
 import {setSelectedSessionEventId} from '../../store/globalActions';
 import {showDialog} from '../../store/modalDialogsActions';
 import EditableList from '../../components/EditableList/EditableList';
 import SessionEvent from '../../models/SessionEvent';
 import ListItem from '../../models/ListItem';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
+import {moveInArray} from '../../utils/array';
 
 function EventList({session, dispatch}) {
   const eventValidationRules = {
@@ -45,6 +50,10 @@ function EventList({session, dispatch}) {
     dispatch(createSessionEvent(session.id, new SessionEvent({title})));
   };
 
+  const sortEvents = (indFrom, indTo) => {
+    dispatch(updateSessionEvents(session.id, moveInArray(session.events, indFrom, indTo)));
+  };
+
   return (
     <div className={'v-list'}>
       <div className={'v-list__item'}>
@@ -55,6 +64,8 @@ function EventList({session, dispatch}) {
                       deleteClick={deleteClick}
                       titleClick={titleClick}
                       addClick={addEventClick}
+                      isSortable={true}
+                      sort={sortEvents}
                       addPlaceholder={'New event'}
                       validationRules={eventValidationRules}/>
       </div>

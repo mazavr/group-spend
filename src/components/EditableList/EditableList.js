@@ -3,7 +3,7 @@ import SimpleList from '../SimpleList';
 import BlockError from '../BlockError';
 import {useValidator} from '../../validation/useValidator';
 
-function EditableList({items, deleteClick, deleteFail, titleClick, addClick, addPlaceholder, validationRules}) {
+function EditableList({items, deleteClick, deleteFail, titleClick, addClick, addPlaceholder, validationRules, sort, isSortable}) {
   const [filter, setFilter] = useState('');
   const [filtered, setFiltered] = useState([]);
   const [title, setTitle] = useState('');
@@ -61,7 +61,11 @@ function EditableList({items, deleteClick, deleteFail, titleClick, addClick, add
                onChange={event => setFilter(event.target.value)}/>
       </div>
       <div className={'v-list__item'}>
-        <SimpleList items={filtered} deleteClick={onDeleteClick} titleClick={titleClick}/>
+        <SimpleList items={filtered}
+                    deleteClick={onDeleteClick}
+                    titleClick={titleClick}
+                    sort={sort}
+                    isSortable={isSortable && !filter}/>
       </div>
     </div>
   )

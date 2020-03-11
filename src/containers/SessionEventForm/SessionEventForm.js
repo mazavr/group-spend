@@ -9,6 +9,7 @@ import SessionEventMoneyTransferPanel from '../SessionEventMoneyTransferPanel';
 import {useValidator} from '../../validation/useValidator';
 import EventPaymentList from '../EventPaymentList';
 import {clone} from '../../utils/object';
+import {moveInArray} from '../../utils/array';
 
 function SessionEventForm({selectedSessionId, selectedSessionEventId, users, sessions, dispatch}) {
   const {originalSessionEvent, originalSessionTitle, originalSession} = useMemo(() => {
@@ -87,6 +88,10 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
     validate(event, ['title', 'amount']);
   };
 
+  const sortPayments = (indFrom, indTo) => {
+    setEditingEvent({...editingEvent, payments: moveInArray(editingEvent.payments, indFrom, indTo)})
+  };
+
   return (
     <div className={'v-list'}>
       <div className={'v-list__item'}>
@@ -121,7 +126,8 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
           <EventPaymentList eventEdit={setEditingEventWithCalculation}
                             dispatch={dispatch}
                             event={editingEvent}
-                            users={users}/>
+                            users={users}
+                            sort={sortPayments}/>
         ) : (
           <div className={'base-text'}>No payments yet</div>
         )}
