@@ -134,7 +134,7 @@ export function makeSortable({dragHelperSelector, listEl, itemSelector, sort}) {
   function handleDragEnd() {
     removeDragProcessEventListeners(listEl);
 
-    clone.remove();
+    clone.parentNode.removeChild(clone);
     clone = null;
 
     movingElement.querySelectorAll('.js-drag-state').forEach(el => {
