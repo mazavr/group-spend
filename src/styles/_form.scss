@@ -20,6 +20,10 @@ $darkenAmount: 4;
   &[disabled], &[readonly] {
     background-color: lighten(lightgray, 15);
   }
+
+  &[disabled] {
+    pointer-events: none;
+  }
 }
 
 .base-button {
@@ -89,6 +93,10 @@ $darkenAmount: 4;
     #{$g}__text {
       vertical-align: middle;
     }
+  }
+
+  input[disabled] {
+    pointer-events: none;
   }
 }
 

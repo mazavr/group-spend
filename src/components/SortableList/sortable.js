@@ -4,7 +4,7 @@ function isTouchDevice(event) {
   return !!event.targetTouches;
 }
 
-function getCursorData(event) {
+function getPointerData(event) {
   const dataSrc = isTouchDevice(event)
     ? event.targetTouches[0]
     : event;
@@ -30,16 +30,16 @@ function applyDragStyles(element, boundRect) {
 
 export function makeSortable({dragHelperSelector, listEl, itemSelector, sort}) {
   let clone = null;
-  let target = null;
-  let startTargetIndex = null;
+  let movingElement = null;
+  let initialMovingElementIndex = null;
 
-  let targetCursorX = 0;
-  let targetCursorY = 0;
+  let movingElementPointerX = 0;
+  let movingElementPointerY = 0;
 
   let initialPageScrollY = 0;
   let initialPageScrollX = 0;
 
-  let previousElementUnderCursor = null;
+  let previousElementUnderPointer = null;
 
   function handleDragStart(event) {
     const dragHelper = closest(event.target, dragHelperSelector, listEl);
@@ -50,18 +50,18 @@ export function makeSortable({dragHelperSelector, listEl, itemSelector, sort}) {
 
     event.preventDefault();
 
-    target = closest(dragHelper, itemSelector, listEl);
-    clone = target.cloneNode(true);
-    target.querySelectorAll('.js-drag-state').forEach(el => {
+    movingElement = closest(dragHelper, itemSelector, listEl);
+    clone = movingElement.cloneNode(true);
+    movingElement.querySelectorAll('.js-drag-state').forEach(el => {
       el.classList.add('drag-state--drag');
     });
-    startTargetIndex = getIndexOf(target);
+    initialMovingElementIndex = getIndexOf(movingElement);
 
-    const boundRect = target.getBoundingClientRect();
-    const cursor = getCursorData(event);
+    const boundRect = movingElement.getBoundingClientRect();
+    const pointer = getPointerData(event);
 
-    targetCursorX = cursor.pageX - boundRect.left;
-    targetCursorY = cursor.pageY - boundRect.top;
+    movingElementPointerX = pointer.pageX - boundRect.left;
+    movingElementPointerY = pointer.pageY - boundRect.top;
     initialPageScrollY = window.pageYOffset;
     initialPageScrollX = window.pageXOffset;
 
@@ -71,32 +71,32 @@ export function makeSortable({dragHelperSelector, listEl, itemSelector, sort}) {
 
     applyDragStyles(clone, boundRect);
 
-    target.parentNode.appendChild(clone);
+    movingElement.parentNode.appendChild(clone);
 
-    addDragProcessEventListeners(isTouchDevice(event));
+    addDragProcessEventListeners(isTouchDevice(event), listEl);
   }
 
   function handleDragMove(event) {
     event.preventDefault(); // prevent scrolling and text select
 
-    const cursor = getCursorData(event);
+    const pointer = getPointerData(event);
 
-    clone.style.left = cursor.pageX - targetCursorX + initialPageScrollX - window.pageXOffset + 'px';
-    clone.style.top = cursor.pageY - targetCursorY + initialPageScrollY - window.pageYOffset + 'px';
+    clone.style.left = pointer.pageX - movingElementPointerX + initialPageScrollX - window.pageXOffset + 'px';
+    clone.style.top = pointer.pageY - movingElementPointerY + initialPageScrollY - window.pageYOffset + 'px';
 
-    const elementUnderCursor = closest(document.elementFromPoint(cursor.clientX, cursor.clientY), itemSelector, listEl);
+    const elementUnderPointer = closest(document.elementFromPoint(pointer.clientX, pointer.clientY), itemSelector, listEl);
 
-    if (previousElementUnderCursor === elementUnderCursor) {
+    if (previousElementUnderPointer === elementUnderPointer) {
       return;
     }
 
-    previousElementUnderCursor = elementUnderCursor;
+    previousElementUnderPointer = elementUnderPointer;
 
-    if (elementUnderCursor && elementUnderCursor !== target && elementUnderCursor.parentNode === target.parentNode) {
-      if (isBefore(target, elementUnderCursor)) {
-        target.parentNode.insertBefore(target, elementUnderCursor.nextSibling);
+    if (elementUnderPointer && elementUnderPointer !== movingElement && elementUnderPointer.parentNode === movingElement.parentNode) {
+      if (isBefore(movingElement, elementUnderPointer)) {
+        movingElement.parentNode.insertBefore(movingElement, elementUnderPointer.nextSibling);
       } else {
-        target.parentNode.insertBefore(target, elementUnderCursor);
+        movingElement.parentNode.insertBefore(movingElement, elementUnderPointer);
       }
     }
   }
@@ -111,44 +111,44 @@ export function makeSortable({dragHelperSelector, listEl, itemSelector, sort}) {
     el.removeEventListener('mousedown', handleDragStart, false);
   }
 
-  function addDragProcessEventListeners(isTouchDevice) {
+  function addDragProcessEventListeners(isTouchDevice, el) {
     if (isTouchDevice) {
-      window.addEventListener('touchmove', handleDragMove, {passive: false});
-      window.addEventListener('touchend', handleDragEnd, false);
-      window.addEventListener('touchcancel', handleDragEnd, false);
+      el.addEventListener('touchmove', handleDragMove, {passive: false});
+      el.addEventListener('touchend', handleDragEnd, false);
+      el.addEventListener('touchcancel', handleDragEnd, false);
     } else {
       window.addEventListener('mousemove', handleDragMove, false);
       window.addEventListener('mouseup', handleDragEnd, false);
     }
   }
 
-  function removeDragProcessEventListeners() {
-    window.removeEventListener('touchmove', handleDragMove, {passive: false});
-    window.removeEventListener('touchend', handleDragEnd);
-    window.removeEventListener('touchcancel', handleDragEnd);
+  function removeDragProcessEventListeners(el) {
+    el.removeEventListener('touchmove', handleDragMove, {passive: false});
+    el.removeEventListener('touchend', handleDragEnd);
+    el.removeEventListener('touchcancel', handleDragEnd);
 
     window.removeEventListener('mousemove', handleDragMove, false);
     window.removeEventListener('mouseup', handleDragEnd, false);
   }
 
   function handleDragEnd() {
-    removeDragProcessEventListeners();
+    removeDragProcessEventListeners(listEl);
 
     clone.remove();
     clone = null;
 
-    target.querySelectorAll('.js-drag-state').forEach(el => {
+    movingElement.querySelectorAll('.js-drag-state').forEach(el => {
       el.classList.remove('drag-state--drag');
     });
 
-    sort(startTargetIndex, getIndexOf(target));
-    target = null;
+    sort(initialMovingElementIndex, getIndexOf(movingElement));
+    movingElement = null;
   }
 
   addDragStartEventListeners(listEl);
 
   return () => {
     removeDragStartEventListeners(listEl);
-    removeDragProcessEventListeners();
+    removeDragProcessEventListeners(listEl);
   }
 }
