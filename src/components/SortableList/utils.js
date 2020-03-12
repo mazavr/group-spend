@@ -1,8 +1,15 @@
 const ELEMENT_NODE_TYPE = 1;
 
-if (typeof Element !== 'undefined' && !Element.prototype.matches) {
-  const proto = Element.prototype;
-  proto.matches = proto.matchesSelector || proto.mozMatchesSelector || proto.msMatchesSelector || proto.oMatchesSelector || proto.webkitMatchesSelector;
+function matches(element, selector) {
+  if (typeof Element === 'undefined') {
+    throw new Error('global Element is undefined');
+  }
+
+  let matchesFunction = Element.prototype.matches || Element.prototype.matchesSelector ||
+    Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector ||
+    Element.prototype.webkitMatchesSelector;
+
+  return matchesFunction.call(element, selector);
 }
 
 export function closest(element, selector, rootNode) {
@@ -11,7 +18,7 @@ export function closest(element, selector, rootNode) {
       return null;
     }
 
-    if (element.nodeType === ELEMENT_NODE_TYPE && element.matches(selector)) {
+    if (element.nodeType === ELEMENT_NODE_TYPE && matches(element, selector)) {
       return element;
     }
 
