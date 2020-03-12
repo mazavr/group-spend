@@ -3,7 +3,7 @@
 .list-item {
   &__title-wrapper {
     display: table;
-    min-height: $controlHeight;
+    height: $controlHeight;
   }
 
   &__drag-helper {
