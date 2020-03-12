@@ -39,6 +39,8 @@ export function makeSortable({dragHelperSelector, listEl, itemSelector, sort}) {
   let initialPageScrollY = 0;
   let initialPageScrollX = 0;
 
+  let previousElementUnderCursor = null;
+
   function handleDragStart(event) {
     const dragHelper = closest(event.target, dragHelperSelector, listEl);
 
@@ -91,8 +93,14 @@ export function makeSortable({dragHelperSelector, listEl, itemSelector, sort}) {
 
     let elementUnderCursor = closest(document.elementFromPoint(cursor.clientX, cursor.clientY), itemSelector, listEl);
 
+    if (previousElementUnderCursor === elementUnderCursor) {
+      return;
+    }
+
+    previousElementUnderCursor = elementUnderCursor;
+
     if (elementUnderCursor && elementUnderCursor !== target && elementUnderCursor.parentNode === target.parentNode) {
-      if (isBefore(target, elementUnderCursor)) { // todo: remove blinking
+      if (isBefore(target, elementUnderCursor)) {
         target.parentNode.insertBefore(target, elementUnderCursor.nextSibling);
       } else {
         target.parentNode.insertBefore(target, elementUnderCursor);
