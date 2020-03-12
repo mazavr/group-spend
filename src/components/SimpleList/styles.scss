@@ -11,6 +11,10 @@
     display: table-cell;
     border-left: 4px solid lightgray;
     cursor: move;
+
+    &.drag-state--drag {
+      border-left-color: $dragStateColor;
+    }
   }
 
   &__title {

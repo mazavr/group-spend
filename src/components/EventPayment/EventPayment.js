@@ -24,8 +24,8 @@ function EventPayment({payment, users, deleteClick, edit, readOnly}) {
   }, [payment, validate]);
 
   return (
-    <div className={'panel'}>
-      <div className={'panel__drag-helper js-drag-helper'}></div>
+    <div className={'panel js-drag-state'}>
+      <div className={'panel__drag-helper js-drag-helper js-drag-state'}></div>
       <div className={'v-list'}>
         <div className={'v-list__item'}>
           <div className={'trailing-block'}>

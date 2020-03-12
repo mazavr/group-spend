@@ -68,6 +68,10 @@ body {
   font-size: $textFontSize;
   position: relative;
 
+  &.drag-state--drag {
+    border-color: $dragStateColor;
+  }
+
   &__drag-helper {
     width: 0;
     height: 0;
@@ -77,6 +81,10 @@ body {
     top:0;
     left: 0;
     cursor: move;
+
+    &.drag-state--drag {
+      border-top-color: $dragStateColor;
+    }
   }
 
   &__text {

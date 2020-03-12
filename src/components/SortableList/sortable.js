@@ -49,6 +49,10 @@ export function makeSortable({dragHelperSelector, listEl, itemSelector, sort}) {
     event.preventDefault();
 
     target = closest(dragHelper, itemSelector, listEl);
+    clone = target.cloneNode(true);
+    target.querySelectorAll('.js-drag-state').forEach(el => {
+      el.classList.add('drag-state--drag');
+    });
     startTargetIndex = getIndexOf(target);
 
     let boundRect = target.getBoundingClientRect();
@@ -58,8 +62,6 @@ export function makeSortable({dragHelperSelector, listEl, itemSelector, sort}) {
     targetCursorY = cursor.pageY - boundRect.top;
     initialPageScrollY = window.pageYOffset;
     initialPageScrollX = window.pageXOffset;
-
-    clone = target.cloneNode(true);
 
     clone.querySelectorAll('select').forEach(select => {
       select.value = select.dataset.value;
@@ -109,6 +111,11 @@ export function makeSortable({dragHelperSelector, listEl, itemSelector, sort}) {
     sort(startTargetIndex, getIndexOf(target));
 
     clone.remove();
+
+    target.querySelectorAll('.js-drag-state').forEach(el => {
+      el.classList.remove('drag-state--drag');
+    });
+
     target = null;
     clone = null;
   }

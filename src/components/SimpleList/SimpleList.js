@@ -9,7 +9,7 @@ function SimpleList({items, deleteClick, titleClick, sort, isSortable}) {
         <div className={'trailing-block'}>
           <div className={`trailing-block__body`} onClick={() => titleClick(item)}>
             <div className={'list-item__title-wrapper'}>
-              {isSortable && <div className={'list-item__drag-helper js-drag-helper'}></div>}
+              {isSortable && <div className={'list-item__drag-helper js-drag-helper js-drag-state'}></div>}
               <div className={`list-item__title`}>
                 {item.title}
                 {item.hint && ' '}
