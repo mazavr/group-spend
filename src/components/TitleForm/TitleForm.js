@@ -22,7 +22,7 @@ function TitleForm({title: originalTitle, onSubmit, onCancel, validationRules}) 
     <div className={'v-list__item'}>
       <input className={`base-input ${errors.title ? 'base-input--invalid' : ''}`} value={title}
              onChange={event => changeTitle(event.target.value)}/>
-      <BlockError errors={errors.title}/>
+      <BlockError errors={errors.title} showFirstOnly={true}/>
     </div>
     <div className={'v-list__item'}>
       <div className={'h-list h-list--pull-right'}>

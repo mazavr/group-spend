@@ -12,11 +12,15 @@ function UsersEditableList({users, sessions, dispatch}) {
     title: {
       required: {
         message: 'Name is required',
-        validate: title => !!title
+        validate: name => !!name
+      },
+      notOnlyWhitespaces: {
+        message: 'Name is empty',
+        validate: name => !!name.trim()
       },
       unique: {
         message: 'Already exists',
-        validate: title => !users.find(user => user.name === title)
+        validate: name => !users.find(user => user.name === name)
       }
     },
     onDelete: {

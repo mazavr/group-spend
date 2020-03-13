@@ -15,6 +15,10 @@ function SessionsEditableList({sessions, dispatch}) {
         message: 'Title is required',
         validate: title => !!title
       },
+      notOnlyWhitespaces: {
+        message: 'Title is empty',
+        validate: title => !!title.trim()
+      },
       unique: {
         message: 'Already exists',
         validate: title => !sessions.find(session => session.title === title)

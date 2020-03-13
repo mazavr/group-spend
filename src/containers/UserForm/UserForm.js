@@ -12,6 +12,10 @@ function UserForm({selectedUserId, users, dispatch}) {
         message: 'User name is required',
         validate: name => !!name
       },
+      notOnlyWhitespaces: {
+        message: 'Name is empty',
+        validate: name => !!name.trim()
+      },
       unique: {
         message: 'User with the same name already exists',
         validate: name => originalUser.name === name || !users.find(u => u.name === name)

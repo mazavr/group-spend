@@ -41,7 +41,7 @@ function EditableList({items, deleteClick, deleteFail, titleClick, addClick, add
                    placeholder={addPlaceholder}
                    value={title}
                    onChange={event => onTitleChange(event.target.value)}/>
-            <BlockError errors={errors.title}/>
+            <BlockError errors={errors.title} showFirstOnly={true}/>
           </div>
           <div className={'trailing-block__tail'}>
             <button type={'submit'} className={'base-button base-button--success'}>

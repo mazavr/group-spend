@@ -5,8 +5,12 @@ function SessionTitleForm({session: originalSession, onSave, onCancel, sessions}
   const validationRules = {
     title: {
       required: {
-        message: 'Field is required',
+        message: 'Title is required',
         validate: title => !!title
+      },
+      notOnlyWhitespaces: {
+        message: 'Title is empty',
+        validate: title => !!title.trim()
       },
       unique: {
         message: 'Already exists',

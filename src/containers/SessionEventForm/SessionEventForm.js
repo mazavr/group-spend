@@ -32,6 +32,10 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
         message: 'Title is required',
         validate: title => !!title
       },
+      notOnlyWhitespaces: {
+        message: 'Title is empty',
+        validate: title => !!title.trim()
+      },
       unique: {
         message: 'Already exists',
         validate: title => {
@@ -105,7 +109,7 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
             <input className={`base-input ${errors.title ? 'base-input--invalid' : ''}`}
                    value={editingEvent.title}
                    onChange={event => onFieldEdit({...editingEvent, title: event.target.value})}/>
-            <BlockError errors={errors.title}/>
+            <BlockError errors={errors.title} showFirstOnly={true}/>
           </div>
           <div className={'trailing-block__tail'}>
             <input type={'number'}
