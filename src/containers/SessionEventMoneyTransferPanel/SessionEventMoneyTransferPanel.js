@@ -5,7 +5,7 @@ import {openSessionEvent, updateSessionEvent} from '../../store/sessionsActions'
 import {showDialog} from '../../store/modalDialogsActions';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 
-function SessionEventMoneyTransferPanel({event, users, sessionId, dispatch}) {
+function SessionEventMoneyTransferPanel({event, users, sessionId, dispatch, beforeOpen, beforeClose}) {
   const transfersForPanel = (() => {
     let preparedPayments = event.payments.map(p => new TransferInputItem(({
       key: users.find(u => u.id === p.userId),
@@ -16,10 +16,18 @@ function SessionEventMoneyTransferPanel({event, users, sessionId, dispatch}) {
   })();
 
   const onOpen = () => {
-    dispatch(openSessionEvent(sessionId, {...event, closed: false}));
+    if (!beforeOpen()) {
+      return;
+    }
+
+    dispatch(openSessionEvent(sessionId, {...event, closed: false}))
   };
 
   const onClose = () => {
+    if (!beforeClose()) {
+      return;
+    }
+
     dispatch(showDialog(new ModalDialog({
       header: `Close event "${event.title}"?`,
       body: 'Are you sure you want to close event?',

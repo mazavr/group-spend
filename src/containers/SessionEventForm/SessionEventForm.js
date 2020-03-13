@@ -69,8 +69,10 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
     dispatch(setSelectedSessionEventId(null))
   };
 
+  const validateEvent = () => validate(editingEvent, ['title', 'amount', 'form']);
+
   const update = () => {
-    if (validate(editingEvent, ['title', 'amount', 'form'])) {
+    if (validateEvent()) {
       dispatch(updateSessionEvent(selectedSessionId, editingEvent));
       dispatch(setSelectedSessionEventId(null));
     }
@@ -169,7 +171,9 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
         <SessionEventMoneyTransferPanel dispatch={dispatch}
                                         sessionId={selectedSessionId}
                                         users={users}
-                                        event={editingEvent}/>
+                                        event={editingEvent}
+                                        beforeOpen={validateEvent}
+                                        beforeClose={validateEvent}/>
       </div>}
     </div>
   )
