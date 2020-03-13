@@ -1,20 +1,15 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useCallback} from 'react';
 import SimpleList from '../SimpleList';
 import BlockError from '../BlockError';
 import {useValidator} from '../../validation/useValidator';
 
 function EditableList({items, deleteClick, deleteFail, titleClick, addClick, addPlaceholder, validationRules, sort, isSortable}) {
   const [filter, setFilter] = useState('');
-  const [filtered, setFiltered] = useState([]);
   const [title, setTitle] = useState('');
   const {errors, validate, setErrors} = useValidator(validationRules);
-
-  useEffect(() => {
-    const filterLowerCase = filter.toLowerCase();
-    setFiltered(filter
-      ? items.filter(item => item.title.toLowerCase().includes(filterLowerCase))
-      : items);
-  }, [filter, items]);
+  const filtered = filter
+    ? items.filter(item => item.title.toLowerCase().includes(filter))
+    : items;
 
   const onSubmit = event => {
     event.preventDefault();
@@ -58,7 +53,7 @@ function EditableList({items, deleteClick, deleteFail, titleClick, addClick, add
       <div className={'v-list__item'}>
         <input className={'base-input'} placeholder={'Filter'}
                value={filter}
-               onChange={event => setFilter(event.target.value)}/>
+               onChange={event => setFilter(event.target.value.toLowerCase())}/>
       </div>
       <div className={'v-list__item'}>
         <SimpleList items={filtered}
