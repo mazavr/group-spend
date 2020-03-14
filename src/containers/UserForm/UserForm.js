@@ -2,24 +2,19 @@ import React from 'react';
 import {setSelectedUserId} from '../../store/globalActions';
 import {updateUser as updateUserAction} from '../../store/usersActions';
 import TitleForm from '../../components/TitleForm';
+import ValidationRule, {validationRuleTypes} from '../../validation/ValidationRule';
 
 function UserForm({selectedUserId, users, dispatch}) {
   const originalUser = users.find(user => user.id === selectedUserId);
 
   const validationRules = {
     title: {
-      required: {
-        message: 'User name is required',
-        validate: name => !!name
-      },
-      notOnlyWhitespaces: {
-        message: 'Name is empty',
-        validate: name => !!name.trim()
-      },
-      unique: {
+      [validationRuleTypes.REQUIRED]: 'Name is required',
+      [validationRuleTypes.NOT_ONLY_WHITESPACES]: 'Name is empty',
+      unique: new ValidationRule({
         message: 'User with the same name already exists',
         validate: name => originalUser.name === name || !users.find(u => u.name === name)
-      }
+      })
     }
   };
 

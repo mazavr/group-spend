@@ -11,22 +11,17 @@ import SessionEvent from '../../models/SessionEvent';
 import ListItem from '../../models/ListItem';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 import {moveInArray} from '../../utils/array';
+import ValidationRule, {validationRuleTypes} from '../../validation/ValidationRule';
 
 function EventList({session, dispatch}) {
   const eventValidationRules = {
     title: {
-      required: {
-        message: 'Title is required',
-        validate: title => !!title
-      },
-      notOnlyWhitespaces: {
-        message: 'Title is empty',
-        validate: title => !!title.trim()
-      },
-      unique: {
+      [validationRuleTypes.REQUIRED]: 'Title is required',
+      [validationRuleTypes.NOT_ONLY_WHITESPACES]: 'Title is empty',
+      unique: new ValidationRule({
         message: 'Already exists',
         validate: title => !session.events.find(event => event.title === title)
-      }
+      })
     }
   };
 

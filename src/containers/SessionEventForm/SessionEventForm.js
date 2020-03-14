@@ -10,6 +10,7 @@ import {useValidator} from '../../validation/useValidator';
 import EventPaymentList from '../EventPaymentList';
 import {clone} from '../../utils/object';
 import {moveInArray} from '../../utils/array';
+import ValidationRule, {validationRuleTypes} from '../../validation/ValidationRule';
 
 function SessionEventForm({selectedSessionId, selectedSessionEventId, users, sessions, dispatch}) {
   const {originalSessionEvent, originalSessionTitle, originalSession} = useMemo(() => {
@@ -28,40 +29,31 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
 
   const {errors, validate} = useValidator({
     title: {
-      required: {
-        message: 'Title is required',
-        validate: title => !!title
-      },
-      notOnlyWhitespaces: {
-        message: 'Title is empty',
-        validate: title => !!title.trim()
-      },
-      unique: {
+      [validationRuleTypes.REQUIRED]: 'Title is required',
+      [validationRuleTypes.NOT_ONLY_WHITESPACES]: 'Title is empty',
+      unique: new ValidationRule({
         message: 'Already exists',
         validate: title => {
           return originalSessionTitle === title || !originalSession.events.find(event => event.title === title);
         }
-      }
+      })
     },
     amount: {
-      notNegative: {
-        message: 'Should be not negative',
-        validate: value => value >= 0
-      }
+      [validationRuleTypes.NOT_NEGATIVE]: 'Should be not negative'
     },
     form: {
-      requiredAmount: {
+      requiredAmount: new ValidationRule({
         message: 'requiredAmount',
         validate: function validate() {
           return getRequiredEventAmount(this) === 0
         }
-      },
-      requiredTotalAmount: {
+      }),
+      requiredTotalAmount: new ValidationRule({
         message: 'requiredTotalAmount',
         validate: function validate() {
           return getRequiredEventTotalAmount(this) === 0;
         }
-      }
+      })
     }
   });
 

@@ -6,25 +6,20 @@ import EditableList from '../../components/EditableList';
 import ListItem from '../../models/ListItem';
 import User from '../../models/User';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
+import ValidationRule, {validationRuleTypes} from '../../validation/ValidationRule';
 
 function UsersEditableList({users, sessions, dispatch}) {
   const userValidationRules = {
     title: {
-      required: {
-        message: 'Name is required',
-        validate: name => !!name
-      },
-      notOnlyWhitespaces: {
-        message: 'Name is empty',
-        validate: name => !!name.trim()
-      },
-      unique: {
+      [validationRuleTypes.REQUIRED]: 'Name is required',
+      [validationRuleTypes.NOT_ONLY_WHITESPACES]: 'Name is empty',
+      unique: new ValidationRule({
         message: 'Already exists',
         validate: name => !users.find(user => user.name === name)
-      }
+      })
     },
     onDelete: {
-      inUse: {
+      inUse: new ValidationRule({
         message: 'Already in use',
         validate: function validate() {
           let self = this;
@@ -36,7 +31,7 @@ function UsersEditableList({users, sessions, dispatch}) {
             })
           })
         }
-      }
+      })
     }
   };
 

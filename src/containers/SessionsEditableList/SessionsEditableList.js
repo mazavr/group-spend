@@ -7,22 +7,17 @@ import ListItem from '../../models/ListItem';
 import Session from '../../models/Session';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 import {moveInArray} from '../../utils/array';
+import ValidationRule, {validationRuleTypes} from '../../validation/ValidationRule';
 
 function SessionsEditableList({sessions, dispatch}) {
   const sessionValidationRules = {
     title: {
-      required: {
-        message: 'Title is required',
-        validate: title => !!title
-      },
-      notOnlyWhitespaces: {
-        message: 'Title is empty',
-        validate: title => !!title.trim()
-      },
-      unique: {
+      [validationRuleTypes.REQUIRED]: 'Title is required',
+      [validationRuleTypes.NOT_ONLY_WHITESPACES]: 'Title is empty',
+      unique: new ValidationRule({
         message: 'Already exists',
         validate: title => !sessions.find(session => session.title === title)
-      }
+      })
     }
   };
 

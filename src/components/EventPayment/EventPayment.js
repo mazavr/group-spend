@@ -1,18 +1,13 @@
 import React, {useEffect} from 'react';
 import {useValidator} from '../../validation/useValidator';
+import {validationRuleTypes} from "../../validation/ValidationRule";
 
 const validationRules = {
   totalAmount: {
-    notNegative: {
-      message: 'Should be not negative',
-      validate: amount => amount >= 0
-    }
+    [validationRuleTypes.NOT_NEGATIVE]: 'Should be not negative'
   },
   amount: {
-    notNegative: {
-      message: 'Should be not negative',
-      validate: amount => amount >= 0
-    }
+    [validationRuleTypes.NOT_NEGATIVE]: 'Should be not negative'
   }
 };
 
