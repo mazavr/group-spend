@@ -18,14 +18,14 @@ body {
 
 .v-list {
   &__item {
-    padding-top: $gap;
+    padding-bottom: $gap;
 
     &--4xgap {
-      padding-top: $gap*4;
+      padding-bottom: $gap*4;
     }
 
-    &:first-child {
-      padding-top: 0;
+    &:last-child {
+      padding-bottom: 0;
     }
   }
 }
