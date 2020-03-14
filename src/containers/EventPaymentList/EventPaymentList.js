@@ -30,6 +30,7 @@ function EventPaymentList({event, users, eventEdit, dispatch, sort}) {
 
   return <SortableList itemSelector={'.js-sortable-item'}
                        dragHelperSelector={'.js-drag-helper'}
+                       disableSort={event.closed}
                        sort={sort}>
     <div className={'v-list'}>
       {event.payments.map(payment => <div className={'v-list__item js-sortable-item'} key={payment.id}>

@@ -20,7 +20,7 @@ function EventPayment({payment, users, deleteClick, edit, readOnly}) {
 
   return (
     <div className={'panel js-drag-state'}>
-      <div className={'panel__drag-helper js-drag-helper js-drag-state'}></div>
+      {!readOnly && <div className={'panel__drag-helper js-drag-helper js-drag-state'}></div>}
       <div className={'v-list'}>
         <div className={'v-list__item'}>
           <div className={'trailing-block'}>
@@ -31,7 +31,7 @@ function EventPayment({payment, users, deleteClick, edit, readOnly}) {
                       data-value={payment.userId}
                       onChange={event => edit({...payment, userId: event.target.value})}>
                 {users.map(user =>
-                  <option key={user.id} value={user.id} >{user.name}</option>
+                  <option key={user.id} value={user.id}>{user.name}</option>
                 )}
               </select>
             </div>

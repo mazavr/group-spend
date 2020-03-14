@@ -87,7 +87,7 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
   };
 
   const sortPayments = (indFrom, indTo) => {
-    setEditingEvent({...editingEvent, payments: moveInArray(editingEvent.payments, indFrom, indTo)})
+    setEditingEventWithCalculation({...editingEvent, payments: moveInArray(editingEvent.payments, indFrom, indTo)})
   };
 
   return (
