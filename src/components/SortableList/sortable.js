@@ -86,7 +86,8 @@ export function makeSortable({dragHelperSelector, listEl, itemSelector, sort}) {
 
     originalElement.parentNode.insertBefore(clone, originalElement.parentNode.firstChild);
     originalElement.parentNode.insertBefore(movingElement, originalElement);
-    originalElement.parentNode.removeChild(originalElement);
+    originalElement.parentNode.insertBefore(originalElement, originalElement.parentNode.firstChild);
+    originalElement.style.display = 'none';
 
     addDragProcessEventListeners(isTouchDevice(event), listEl);
   }
@@ -123,6 +124,7 @@ export function makeSortable({dragHelperSelector, listEl, itemSelector, sort}) {
     clone = null;
 
     movingElement.parentNode.insertBefore(originalElement, movingElement);
+    originalElement.style.display = '';
     movingElement.parentNode.removeChild(movingElement);
     movingElement = null;
 
