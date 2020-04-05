@@ -1,68 +1,62 @@
 import React from 'react';
-import {createUser, deleteUser as deleteUserAction} from '../../store/usersActions';
-import {setSelectedUserId} from '../../store/globalActions';
-import {showDialog} from '../../store/modalDialogsActions';
+import {observer} from 'mobx-react';
 import EditableList from '../../components/EditableList';
 import ListItem from '../../models/ListItem';
-import User from '../../models/User';
+import User from '../../stores/User';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 import ValidationRule, {validationRuleTypes} from '../../validation/ValidationRule';
+import {useStore} from '../../App/AppContext';
 
-function UsersEditableList({users, sessions, dispatch}) {
+export default observer(function UsersEditableList() {
+  const {userStore, shellStore, modalDialogStore, sessionStore} = useStore();
+
   const userValidationRules = {
     title: {
       [validationRuleTypes.REQUIRED]: 'Name is required',
       [validationRuleTypes.NOT_ONLY_WHITESPACES]: 'Name is empty',
       unique: new ValidationRule({
         message: 'Already exists',
-        validate: name => !users.find(user => user.name === name)
+        validate: name => !userStore.users.find(user => user.name === name)
       })
     },
     onDelete: {
       inUse: new ValidationRule({
-        message: 'Already in use',
+        message: 'Already in use', // todo: use it in error message in ModalDialog
         validate: function validate() {
-          let self = this;
-          return !sessions.some(session => {
-            return session.events.some(event => {
-              return event.payments.some(payment => {
-                return payment.userId === self.id
-              })
-            })
-          })
+          return !sessionStore.isUserInSessionUse(this.id);
         }
       })
     }
   };
 
-  const userListItems = users.map(user => new ListItem({
+  const userListItems = userStore.sortedUsers.map(user => new ListItem({ //todo: should be avoided?
     id: user.id,
     title: user.name,
     tag: user
   }));
 
   const addUser = name => {
-    dispatch(createUser(new User({name})));
+    userStore.add(new User({name}));
   };
 
   const deleteUser = ({id, tag: {name}}) => {
-    dispatch(showDialog(new ModalDialog({
+    modalDialogStore.show(new ModalDialog({
       header: `Delete user "${name}"?`,
       body: 'He is not used by any events and can be safely deleted.',
       type: dialogTypes.CONFIRM,
-      okClick: () => dispatch(deleteUserAction(id))
-    })))
+      okClick: () => userStore.remove(id)
+    }))
   };
 
   const openUser = item => {
-    dispatch(setSelectedUserId(item.id));
+    shellStore.setSelectedUserId(item.id);
   };
 
-  const deleteFail = ({tag: {name}}) => {
-    dispatch(showDialog(new ModalDialog({
+  const deleteFail = ({tag: {name}}, error) => { // todo: use error
+    modalDialogStore.show(new ModalDialog({
       header: `Can't delete user "${name}"`,
       body: 'It is used by some of events'
-    })))
+    }))
   };
 
   return (
@@ -74,6 +68,4 @@ function UsersEditableList({users, sessions, dispatch}) {
                   validationRules={userValidationRules}
                   deleteFail={deleteFail}/>
   )
-}
-
-export default React.memo(UsersEditableList);
+});

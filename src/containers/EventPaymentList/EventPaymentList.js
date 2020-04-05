@@ -1,47 +1,38 @@
 import React from 'react';
+import {observer} from 'mobx-react';
 import EventPayment from '../../components/EventPayment';
-import {showDialog} from '../../store/modalDialogsActions';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
 import SortableList from '../../components/SortableList';
+import {useStore} from '../../App/AppContext';
 
-function EventPaymentList({event, users, eventEdit, dispatch, sort}) {
-  const onPaymentEdit = payment => {
-    eventEdit({
-      ...event,
-      payments: event.payments.map(eventPayment => {
-        return eventPayment.id === payment.id
-          ? {...eventPayment, ...payment}
-          : eventPayment;
-      })
-    });
-  };
+export default observer(function EventPaymentList({event}) {
+  const {userStore, modalDialogStore} = useStore();
 
   const onPaymentDelete = payment => {
-    dispatch(showDialog(new ModalDialog({
-      header: `Delete payment of user "${users.find(user => user.id === payment.userId).name}"?`,
+    modalDialogStore.show(new ModalDialog({
+      header: `Delete payment of user "${userStore.users.find(user => user.id === payment.userId).name}"?`,
       body: 'Operation can\'t be undone',
       type: dialogTypes.CONFIRM,
-      okClick: () => eventEdit({
-        ...event,
-        payments: event.payments.filter(eventPayment => eventPayment.id !== payment.id)
-      })
-    })))
+      okClick: () => event.removePayment(payment.id)
+    }))
+  };
+
+  const sortPayments = (indFrom, indTo) => {
+    event.movePayment(indFrom, indTo);
   };
 
   return <SortableList itemSelector={'.js-sortable-item'}
                        dragHelperSelector={'.js-drag-helper'}
                        disableSort={event.closed}
-                       sort={sort}>
+                       sort={sortPayments}>
     <div className={'v-list'}>
-      {event.payments.map(payment => <div className={'v-list__item js-sortable-item'} key={payment.id}>
-        <EventPayment payment={payment}
-                      edit={onPaymentEdit}
-                      deleteClick={onPaymentDelete}
-                      readOnly={event.closed}
-                      users={users}/>
-      </div>)}
+      {event.payments.map(payment =>
+        <div className={'v-list__item js-sortable-item'} key={payment.id}>
+          <EventPayment payment={payment}
+                        deleteClick={onPaymentDelete}
+                        readOnly={event.closed}/>
+        </div>
+      )}
     </div>
   </SortableList>
-}
-
-export default EventPaymentList;
+})

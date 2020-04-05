@@ -1,28 +1,29 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {setSelectedSessionEventId} from '../../store/globalActions';
-import {updateSessionEvent} from '../../store/sessionsActions';
+import React, {useState} from 'react';
+import {observer} from 'mobx-react';
 import './styles.scss'
-import {getRequiredEventAmount, getRequiredEventTotalAmount, recalculatePaymentsTotalAmount} from '../../utils/payment';
+import {getRequiredEventAmount, getRequiredEventTotalAmount} from '../../utils/payment';
 import BlockError from '../../components/BlockError';
-import Payment from '../../models/Payment';
+import Payment from '../../stores/Payment';
 import SessionEventMoneyTransferPanel from '../SessionEventMoneyTransferPanel';
 import {useValidator} from '../../validation/useValidator';
 import EventPaymentList from '../EventPaymentList';
-import {clone} from '../../utils/object';
-import {moveInArray} from '../../utils/array';
 import ValidationRule, {validationRuleTypes} from '../../validation/ValidationRule';
+import {useStore} from '../../App/AppContext';
+import SessionEvent from '../../stores/SessionEvent';
 
-function SessionEventForm({selectedSessionId, selectedSessionEventId, users, sessions, dispatch}) {
-  const {originalSessionEvent, originalSessionTitle, originalSession} = useMemo(() => {
-    let originalSession = sessions.find(session => session.id === selectedSessionId);
-    let originalSessionEvent = originalSession.events.find(event => event.id === selectedSessionEventId);
-    return {originalSessionEvent, originalSessionTitle: originalSessionEvent.title, originalSession};
-  }, [sessions, selectedSessionId, selectedSessionEventId]);
-  const [editingEvent, setEditingEvent] = useState(clone(originalSessionEvent));
+export default observer(function SessionEventForm({event}) {
+  const {shellStore, userStore} = useStore();
 
-  useEffect(() => {
-    setEditingEvent(clone(originalSessionEvent));
-  }, [originalSessionEvent]);
+  const [editingEvent] = useState(() => {
+    let newEvent = new SessionEvent();
+    newEvent.load(event);
+    return newEvent;
+  });
+
+  // useEffect(
+  //   () => autorun(() => editingEvent.recalculatePaymentsTotalAmount()),
+  //   []
+  // );
 
   const requiredAmount = getRequiredEventAmount(editingEvent);
   const requiredTotalAmount = getRequiredEventTotalAmount(editingEvent);
@@ -34,7 +35,7 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
       unique: new ValidationRule({
         message: 'Already exists',
         validate: title => {
-          return originalSessionTitle === title || !originalSession.events.find(event => event.title === title);
+          return event.title === title || !shellStore.selectedSession.events.find(event => event.title === title);
         }
       })
     },
@@ -57,37 +58,31 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
     }
   });
 
-  const cancel = () => {
-    dispatch(setSelectedSessionEventId(null))
-  };
+  const cancel = () => shellStore.setSelectedSessionEventId(null);
 
   const validateEvent = () => validate(editingEvent, ['title', 'amount', 'form']);
 
   const update = () => {
     if (validateEvent()) {
-      dispatch(updateSessionEvent(selectedSessionId, editingEvent));
-      dispatch(setSelectedSessionEventId(null));
+      event.load(editingEvent); // todo: or/when assign?
+      shellStore.setSelectedSessionEventId(null);
     }
   };
 
-  const setEditingEventWithCalculation = event => {
-    setEditingEvent(recalculatePaymentsTotalAmount(event));
-  };
-
   const addPayment = userId => {
-    setEditingEventWithCalculation({
-      ...editingEvent,
-      payments: [...editingEvent.payments, new Payment({userId})]
-    })
+    editingEvent.addPayment(new Payment({userId}));
+    editingEvent.recalculatePaymentsTotalAmount(); // todo: add auto run?
   };
 
-  const onFieldEdit = event => {
-    setEditingEventWithCalculation(event);
-    validate(event, ['title', 'amount']);
+  const onAmountChange = amount => {
+    editingEvent.setAmount(amount);
+    editingEvent.recalculatePaymentsTotalAmount();
+    validate(editingEvent, ['amount']);
   };
 
-  const sortPayments = (indFrom, indTo) => {
-    setEditingEventWithCalculation({...editingEvent, payments: moveInArray(editingEvent.payments, indFrom, indTo)})
+  const onTitleChange = title => {
+    editingEvent.setTitle(title);
+    validate(editingEvent, ['title']);
   };
 
   return (
@@ -102,7 +97,7 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
           <div className={'trailing-block__body'}>
             <input className={`base-input ${errors.title ? 'base-input--invalid' : ''}`}
                    value={editingEvent.title}
-                   onChange={event => onFieldEdit({...editingEvent, title: event.target.value})}/>
+                   onChange={event => onTitleChange(event.target.value)}/>
             <BlockError errors={errors.title} showFirstOnly={true}/>
           </div>
           <div className={'trailing-block__tail'}>
@@ -112,7 +107,7 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
                    readOnly={editingEvent.closed}
                    onFocus={e => e.target.select()}
                    value={editingEvent.amount}
-                   onChange={event => onFieldEdit({...editingEvent, amount: +event.target.value})}/>
+                   onChange={event => onAmountChange(+event.target.value)}/>
           </div>
         </div>
       </div>
@@ -121,11 +116,7 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
       </div>
       <div className={'v-list__item'}>
         {editingEvent.payments.length ? (
-          <EventPaymentList eventEdit={setEditingEventWithCalculation}
-                            dispatch={dispatch}
-                            event={editingEvent}
-                            users={users}
-                            sort={sortPayments}/>
+          <EventPaymentList event={editingEvent}/>
         ) : (
           <div className={'base-text'}>No payments yet</div>
         )}
@@ -144,7 +135,7 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
         <label className={'base-label'}>Choose friend to add payment:</label>
         <select className={'base-input'} onChange={event => addPayment(event.target.value)} value={''}>
           <option value=""></option>
-          {users.map(user =>
+          {userStore.users.map(user =>
             <option key={user.id} value={user.id}>{user.name}</option>
           )}
         </select>
@@ -159,16 +150,14 @@ function SessionEventForm({selectedSessionId, selectedSessionEventId, users, ses
           </div>
         </div>
       </div>
-      {requiredAmount === 0 && requiredTotalAmount === 0 && <div className={'v-list__item  v-list__item--4xgap'}>
-        <SessionEventMoneyTransferPanel dispatch={dispatch}
-                                        sessionId={selectedSessionId}
-                                        users={users}
-                                        event={editingEvent}
-                                        beforeOpen={validateEvent}
-                                        beforeClose={validateEvent}/>
-      </div>}
+      {requiredAmount === 0 && requiredTotalAmount === 0 && (
+        <div className={'v-list__item  v-list__item--4xgap'}>
+          <SessionEventMoneyTransferPanel onUpdate={update}
+                                          event={editingEvent}
+                                          beforeOpen={validateEvent}
+                                          beforeClose={validateEvent}/>
+        </div>
+      )}
     </div>
   )
-}
-
-export default React.memo(SessionEventForm);
+})

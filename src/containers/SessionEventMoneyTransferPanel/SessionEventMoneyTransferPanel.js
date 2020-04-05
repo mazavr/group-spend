@@ -1,14 +1,16 @@
 import React from 'react';
+import {observer} from 'mobx-react';
 import MoneyTransferPanel from '../../components/MoneyTransferPanel';
 import {getRequiredTransfers, TransferInputItem} from '../../utils/payment';
-import {openSessionEvent, updateSessionEvent} from '../../store/sessionsActions';
-import {showDialog} from '../../store/modalDialogsActions';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
+import {useStore} from '../../App/AppContext';
 
-function SessionEventMoneyTransferPanel({event, users, sessionId, dispatch, beforeOpen, beforeClose}) {
+export default observer(function SessionEventMoneyTransferPanel({event, beforeOpen, beforeClose, onUpdate}) {
+  const {modalDialogStore, userStore} = useStore();
+
   const transfersForPanel = (() => {
     let preparedPayments = event.payments.map(p => new TransferInputItem(({
-      key: users.find(u => u.id === p.userId),
+      key: userStore.users.find(u => u.id === p.userId),
       balance: p.amount - p.totalAmount
     })));
 
@@ -20,7 +22,8 @@ function SessionEventMoneyTransferPanel({event, users, sessionId, dispatch, befo
       return;
     }
 
-    dispatch(openSessionEvent(sessionId, {...event, closed: false}))
+    event.setClosed(false);
+    onUpdate();
   };
 
   const onClose = () => {
@@ -28,12 +31,15 @@ function SessionEventMoneyTransferPanel({event, users, sessionId, dispatch, befo
       return;
     }
 
-    dispatch(showDialog(new ModalDialog({
+    modalDialogStore.show(new ModalDialog({
       header: `Close event "${event.title}"?`,
       body: 'Are you sure you want to close event?',
       type: dialogTypes.CONFIRM,
-      okClick: () => dispatch(updateSessionEvent(sessionId, {...event, closed: true}))
-    })))
+      okClick: () => {
+        event.setClosed(true);
+        onUpdate();
+      }
+    }))
   };
 
   return <MoneyTransferPanel
@@ -47,6 +53,4 @@ function SessionEventMoneyTransferPanel({event, users, sessionId, dispatch, befo
     closeButtonText={'Close and Save'}
     openButtonText={'Open and Save'}
   />
-}
-
-export default SessionEventMoneyTransferPanel;
+})

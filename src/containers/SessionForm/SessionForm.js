@@ -1,20 +1,20 @@
 import React from 'react';
-import {setSelectedSessionId} from '../../store/globalActions';
-import {updateSession as updateSessionAction} from '../../store/sessionsActions';
+import {observer} from 'mobx-react';
 import EventList from '../EventList';
 import SessionTitleForm from '../SessionTitleForm';
 import SessionMoneyTransferPanel from '../SessionMoneyTransferPanel';
+import {useStore} from '../../App/AppContext';
 
-function SessionForm({selectedSessionId, sessions, dispatch, users}) {
-  const session = sessions.find(session => session.id === selectedSessionId);
+export default observer(function SessionForm({session}) {
+  const {sessionStore, userStore, shellStore} = useStore();
 
   const cancelEdit = () => {
-    dispatch(setSelectedSessionId(null))
+    shellStore.setSelectedSessionId(null);
   };
 
   const saveTitle = title => {
-    dispatch(updateSessionAction({...session, title}));
-    dispatch(setSelectedSessionId(null));
+    session.setTitle(title);
+    shellStore.setSelectedSessionId(null);
   };
 
   return (
@@ -24,21 +24,17 @@ function SessionForm({selectedSessionId, sessions, dispatch, users}) {
       </div>
       <div className={'v-list__item'}>
         <SessionTitleForm session={session}
-                          sessions={sessions}
+                          sessions={sessionStore.sessions}
                           onSave={saveTitle}
                           onCancel={cancelEdit}/>
       </div>
       <div className={'v-list__item v-list__item--4xgap'}>
-        <EventList session={session}
-                   dispatch={dispatch}/>
+        <EventList session={session}/>
       </div>
       <div className={'v-list__item  v-list__item--4xgap'}>
         <SessionMoneyTransferPanel session={session}
-                                   users={users}
-                                   dispatch={dispatch}/>
+                                   users={userStore.users}/>
       </div>
     </div>
   )
-}
-
-export default React.memo(SessionForm);
+});

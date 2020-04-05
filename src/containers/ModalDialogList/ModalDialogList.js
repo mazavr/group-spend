@@ -1,20 +1,23 @@
 import React from 'react';
-import {hideDialog} from '../../store/modalDialogsActions';
 import {dialogTypes} from '../../models/ModalDialog';
+import {useStore} from '../../App/AppContext';
+import {observer} from 'mobx-react';
 
-function ModalDialogList({modalDialogs, dispatch}) {
-  if (modalDialogs.length === 0) {
+export default observer(function ModalDialogList() {
+  const {modalDialogStore} = useStore();
+
+  if (modalDialogStore.modalDialogs.length === 0) {
     return null;
   }
 
-  const dialog = modalDialogs[modalDialogs.length - 1];
+  const dialog = modalDialogStore.modalDialogs[modalDialogStore.modalDialogs.length - 1];
 
   const close = () => {
-    dispatch(hideDialog());
+    modalDialogStore.hide();
   };
 
   const ok = () => {
-    dispatch(hideDialog());
+    modalDialogStore.hide();
     dialog.okClick && dialog.okClick();
   };
 
@@ -51,6 +54,4 @@ function ModalDialogList({modalDialogs, dispatch}) {
       </div>
     </div>
   )
-}
-
-export default React.memo(ModalDialogList);
+});

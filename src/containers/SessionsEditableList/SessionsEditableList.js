@@ -1,27 +1,27 @@
 import React from 'react';
-import {setSelectedSessionId} from '../../store/globalActions';
-import {createSession, deleteSession as deleteSessionAction, updateSessions} from '../../store/sessionsActions';
-import {showDialog} from '../../store/modalDialogsActions';
+import {observer} from "mobx-react";
 import EditableList from '../../components/EditableList';
 import ListItem from '../../models/ListItem';
-import Session from '../../models/Session';
+import Session from '../../stores/Session';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
-import {moveInArray} from '../../utils/array';
 import ValidationRule, {validationRuleTypes} from '../../validation/ValidationRule';
+import {useStore} from '../../App/AppContext';
 
-function SessionsEditableList({sessions, dispatch}) {
+export default observer(function SessionsEditableList() {
+  const {sessionStore, modalDialogStore, shellStore} = useStore();
+
   const sessionValidationRules = {
     title: {
       [validationRuleTypes.REQUIRED]: 'Title is required',
       [validationRuleTypes.NOT_ONLY_WHITESPACES]: 'Title is empty',
       unique: new ValidationRule({
         message: 'Already exists',
-        validate: title => !sessions.find(session => session.title === title)
+        validate: title => !sessionStore.sessions.find(session => session.title === title)
       })
     }
   };
 
-  const sessionListItems = sessions.map(session => new ListItem({
+  const sessionListItems = sessionStore.sessions.map(session => new ListItem({
     id: session.id,
     title: session.title,
     tag: session,
@@ -29,24 +29,24 @@ function SessionsEditableList({sessions, dispatch}) {
   }));
 
   const addSession = title => {
-    dispatch(createSession(new Session({title})));
+    sessionStore.addSession(new Session({title}));
   };
 
   const sortSessions = (indFrom, indTo) => {
-    dispatch(updateSessions(moveInArray(sessions, indFrom, indTo)));
+    sessionStore.moveSession(indFrom, indTo);
   };
 
   const deleteSession = ({id, tag: {title}}) => {
-    dispatch(showDialog(new ModalDialog({
+    modalDialogStore.show(new ModalDialog({
       header: `Delete session "${title}"?`,
       body: 'Operation can\'t be undone',
       type: dialogTypes.CONFIRM,
-      okClick: () => dispatch(deleteSessionAction(id))
-    })))
+      okClick: () => sessionStore.removeSession(id)
+    }))
   };
 
   const openSession = item => {
-    dispatch(setSelectedSessionId(item.id));
+    shellStore.setSelectedSessionId(item.id);
   };
 
   return (
@@ -59,6 +59,4 @@ function SessionsEditableList({sessions, dispatch}) {
                   addPlaceholder={'New session'}
                   validationRules={sessionValidationRules}/>
   )
-}
-
-export default React.memo(SessionsEditableList);
+})

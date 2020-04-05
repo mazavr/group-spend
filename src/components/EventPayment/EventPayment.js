@@ -1,6 +1,9 @@
 import React, {useEffect} from 'react';
+import {autorun} from 'mobx';
+import {observer} from 'mobx-react';
 import {useValidator} from '../../validation/useValidator';
-import {validationRuleTypes} from "../../validation/ValidationRule";
+import {validationRuleTypes} from '../../validation/ValidationRule';
+import {useStore} from '../../App/AppContext';
 
 const validationRules = {
   totalAmount: {
@@ -11,12 +14,14 @@ const validationRules = {
   }
 };
 
-function EventPayment({payment, users, deleteClick, edit, readOnly}) {
+export default observer(function EventPayment({payment, deleteClick, readOnly}) {
+  const {userStore} = useStore();
   const {errors, validate} = useValidator(validationRules);
 
-  useEffect(() => {
-    validate(payment, ['totalAmount', 'amount']);
-  }, [payment, validate]);
+  useEffect(
+    () => autorun(() => validate(payment, ['totalAmount', 'amount'])),
+    []
+  );
 
   return (
     <div className={'panel js-drag-state'}>
@@ -29,18 +34,20 @@ function EventPayment({payment, users, deleteClick, edit, readOnly}) {
                       disabled={readOnly}
                       value={payment.userId}
                       data-value={payment.userId}
-                      onChange={event => edit({...payment, userId: event.target.value})}>
-                {users.map(user =>
+                      onChange={event => payment.setUserId(event.target.value)}>
+                {userStore.users.map(user =>
                   <option key={user.id} value={user.id}>{user.name}</option>
                 )}
               </select>
             </div>
-            {readOnly || <div className={'trailing-block__tail'}>
-              <button type={'button'} className={'base-button base-button--danger'}
-                      onClick={() => deleteClick(payment)}>
-                Del
-              </button>
-            </div>}
+            {readOnly || (
+              <div className={'trailing-block__tail'}>
+                <button type={'button'} className={'base-button base-button--danger'}
+                        onClick={() => deleteClick(payment)}>
+                  Del
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <div className={'v-list__item'}>
@@ -50,7 +57,7 @@ function EventPayment({payment, users, deleteClick, edit, readOnly}) {
                 <input type={'checkbox'}
                        checked={payment.isCustomTotal}
                        disabled={readOnly}
-                       onChange={event => edit({...payment, isCustomTotal: event.target.checked})}/>
+                       onChange={event => payment.setIsCustomTotal(event.target.checked)}/>
                 <span className={'base-label__text'}>Custom total</span>
               </label>
             </div>
@@ -61,7 +68,7 @@ function EventPayment({payment, users, deleteClick, edit, readOnly}) {
                      className={`base-input base-input--money-input ${errors && errors.amount ? 'base-input--invalid' : ''}`}
                      value={payment.amount}
                      onFocus={e => e.target.select()}
-                     onChange={event => edit({...payment, amount: +event.target.value})}/>
+                     onChange={event => payment.setAmount(+event.target.value)}/>
             </div>
             <div className={'h-list__item'}>
               <div className={'money-separator-text'}>of</div>
@@ -73,13 +80,11 @@ function EventPayment({payment, users, deleteClick, edit, readOnly}) {
                      className={`base-input base-input--money-input ${errors && errors.totalAmount ? 'base-input--invalid' : ''}`}
                      value={payment.totalAmount}
                      onFocus={e => e.target.select()}
-                     onChange={event => edit({...payment, totalAmount: +event.target.value})}/>
+                     onChange={event => payment.setTotalAmount(+event.target.value)}/>
             </div>
           </div>
         </div>
       </div>
     </div>
   )
-}
-
-export default EventPayment;
+})

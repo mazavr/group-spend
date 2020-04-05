@@ -1,19 +1,15 @@
 import React from 'react';
-import {
-  createSessionEvent,
-  deleteSessionEvent,
-  updateSessionEvents
-} from '../../store/sessionsActions';
-import {setSelectedSessionEventId} from '../../store/globalActions';
-import {showDialog} from '../../store/modalDialogsActions';
+import {observer} from 'mobx-react';
 import EditableList from '../../components/EditableList/EditableList';
-import SessionEvent from '../../models/SessionEvent';
+import SessionEvent from '../../stores/SessionEvent';
 import ListItem from '../../models/ListItem';
 import ModalDialog, {dialogTypes} from '../../models/ModalDialog';
-import {moveInArray} from '../../utils/array';
 import ValidationRule, {validationRuleTypes} from '../../validation/ValidationRule';
+import {useStore} from '../../App/AppContext';
 
-function EventList({session, dispatch}) {
+export default observer(function EventList({session}) {
+  const {shellStore, modalDialogStore} = useStore();
+
   const eventValidationRules = {
     title: {
       [validationRuleTypes.REQUIRED]: 'Title is required',
@@ -33,24 +29,24 @@ function EventList({session, dispatch}) {
   }));
 
   const deleteClick = ({id, tag: {title}}) => {
-    dispatch(showDialog(new ModalDialog({
+    modalDialogStore.show(new ModalDialog({
       header: `Delete event "${title}"?`,
       body: 'Operation can\'t be undone',
       type: dialogTypes.CONFIRM,
-      okClick: () => dispatch(deleteSessionEvent(session.id, id))
-    })))
+      okClick: () => session.removeEvent(id)
+    }))
   };
 
   const titleClick = ({id}) => {
-    dispatch(setSelectedSessionEventId(id));
+    shellStore.setSelectedSessionEventId(id);
   };
 
   const addEventClick = title => {
-    dispatch(createSessionEvent(session.id, new SessionEvent({title})));
+    session.addEvent(new SessionEvent({title}));
   };
 
   const sortEvents = (indFrom, indTo) => {
-    dispatch(updateSessionEvents(session.id, moveInArray(session.events, indFrom, indTo)));
+    session.moveEvent(indFrom, indTo);
   };
 
   return (
@@ -70,6 +66,4 @@ function EventList({session, dispatch}) {
       </div>
     </div>
   )
-}
-
-export default EventList;
+});

@@ -1,30 +1,20 @@
-import React, {useContext} from 'react';
-import {globalContext} from '../../store/globalReducer';
+import React from 'react';
+import {observer} from 'mobx-react';
 import SessionForm from '../SessionForm';
 import SessionsEditableList from '../SessionsEditableList';
 import SessionEventForm from '../SessionEventForm';
+import {useStore} from '../../App/AppContext';
 
-function Sessions() {
-  const [{selectedSessionId, selectedSessionEventId, sessions, users}, dispatch] = useContext(globalContext);
+export default observer(function Sessions() {
+  const {shellStore} = useStore();
 
-  if (selectedSessionEventId) {
-    return <SessionEventForm
-      selectedSessionId={selectedSessionId}
-      selectedSessionEventId={selectedSessionEventId}
-      users={users}
-      sessions={sessions}
-      dispatch={dispatch}/>
-  } else if (selectedSessionId) {
-    return <SessionForm
-      selectedSessionId={selectedSessionId}
-      sessions={sessions}
-      users={users}
-      dispatch={dispatch}/>
+  if (shellStore.selectedSessionEventId) {
+    return <SessionEventForm event={shellStore.selectedSessionEvent}/>
   }
 
-  return <SessionsEditableList
-    sessions={sessions}
-    dispatch={dispatch}/>
-}
+  if (shellStore.selectedSessionId) {
+    return <SessionForm session={shellStore.selectedSession}/>
+  }
 
-export default Sessions
+  return <SessionsEditableList/>
+})

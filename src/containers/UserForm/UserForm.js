@@ -1,11 +1,12 @@
 import React from 'react';
-import {setSelectedUserId} from '../../store/globalActions';
-import {updateUser as updateUserAction} from '../../store/usersActions';
 import TitleForm from '../../components/TitleForm';
 import ValidationRule, {validationRuleTypes} from '../../validation/ValidationRule';
+import {useStore} from '../../App/AppContext';
+import {observer} from 'mobx-react';
 
-function UserForm({selectedUserId, users, dispatch}) {
-  const originalUser = users.find(user => user.id === selectedUserId);
+export default observer(function UserForm() {
+  const {userStore, shellStore} = useStore();
+  const originalUser = userStore.users.find(user => user.id === shellStore.selectedUserId);
 
   const validationRules = {
     title: {
@@ -13,18 +14,18 @@ function UserForm({selectedUserId, users, dispatch}) {
       [validationRuleTypes.NOT_ONLY_WHITESPACES]: 'Name is empty',
       unique: new ValidationRule({
         message: 'User with the same name already exists',
-        validate: name => originalUser.name === name || !users.find(u => u.name === name)
+        validate: name => originalUser.name === name || !userStore.users.find(u => u.name === name)
       })
     }
   };
 
   const cancel = () => {
-    dispatch(setSelectedUserId(null));
+    shellStore.setSelectedUserId(null);
   };
 
   const updateUser = name => {
-    dispatch(updateUserAction({...originalUser, name}));
-    dispatch(setSelectedUserId(null));
+    originalUser.setName(name);
+    shellStore.setSelectedUserId(null);
   };
 
   return (
@@ -40,6 +41,4 @@ function UserForm({selectedUserId, users, dispatch}) {
       </div>
     </div>
   )
-}
-
-export default React.memo(UserForm);
+})

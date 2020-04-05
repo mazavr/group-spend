@@ -1,18 +1,13 @@
-import React, {useContext} from 'react';
-import {globalContext} from '../../store/globalReducer';
+import React from 'react';
 import UserForm from '../UserForm';
 import UsersEditableList from '../UsersEditableList';
+import {useStore} from '../../App/AppContext';
+import {observer} from "mobx-react";
 
-function Users() {
-  const [{selectedUserId, users, sessions}, dispatch] = useContext(globalContext);
+export default observer(function Users() {
+  const {shellStore} = useStore();
 
-  return selectedUserId
-    ? <UserForm selectedUserId={selectedUserId}
-                users={users}
-                dispatch={dispatch}/>
-    : <UsersEditableList users={users}
-                         sessions={sessions}
-                         dispatch={dispatch}/>
-}
-
-export default Users
+  return shellStore.selectedUserId
+    ? <UserForm/>
+    : <UsersEditableList/>
+});
